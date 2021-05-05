@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+      <class name = "com.ideas2it.employeeManagement.model.Employee" table = "employee">
+      
+      <id name = "id" type = "int" column = "id">
+         <generator class="increment"/>
+      </id>
+      <property name = "name" column = "name" type = "string"/>
+      <property name = "salary" column = "salary" type = "float"/>
+      <property name = "mobileNumber" column = "mobile_number" type = "string"/>
+      <property name = "dateOfBirth" column = "date_of_birth" type = "date"/>
+      <property name = "isDeleted" column = "is_deleted" type = "boolean"/>
+	   <bag name="projectList" table="employee_project" lazy="true">
+		<key column ="employee_Id" />
+        <many-to-many column = "project_id" class = "com.ideas2it.projectManagement.model.Project"/>
+       </bag>
+      <bag name = "addressList" table = "address" lazy = "true" cascade = "save-update">
+		  <key column = "employee_Id"/>
+			<one-to-many class = "com.ideas2it.employeeManagement.model.Address" />
+		</bag>
+	</class>
+</hibernate-mapping>
