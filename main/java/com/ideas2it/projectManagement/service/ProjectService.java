@@ -3,6 +3,7 @@ package com.ideas2it.projectManagement.service;
 import java.util.List;
 import java.util.Map;
 
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.projectManagement.model.Project;
 
 /**
@@ -25,10 +26,11 @@ public interface ProjectService {
      * @param timePeriod   timeperiod for completing project.
      *
      * @return isProjectAdded true when sucessfully updated or return false.
+     * @throws EmployeeManagementException 
      */
     public int addProject(String projectName, 
             String projectManager, String department,
-            int timePeriod);
+            int timePeriod) throws EmployeeManagementException;
 			
     /**
      * Here ProjectID  get from user and,
@@ -38,8 +40,9 @@ public interface ProjectService {
      * details from  database.
      *
      * @return project   project Details for user view. 
+     * @throws EmployeeManagementException 
      */
-    public List<String> getProjectDetails(int projectId);
+    public List<String> getProjectDetails(int projectId) throws EmployeeManagementException;
     
     /**
      * projectId get from user and,
@@ -62,9 +65,10 @@ public interface ProjectService {
      * @param timePeriod   new DateOfBirth for change.
      *
      * @return isUpdated true when sucessfully updated or return false.
+     * @throws EmployeeManagementException 
      */
     public boolean updateProject(int projectId, String projectName,
-             String managerName, String department, int timePeriod);
+             String managerName, String department, int timePeriod) throws EmployeeManagementException;
 	
     /**
      * projectId and employeeId are get from user and,
@@ -74,8 +78,9 @@ public interface ProjectService {
      * @employeesId       it contains employees to assign.	 
      * 
      * @return isAssigned return true when sucessfully assigned or return false
+     * @throws EmployeeManagementException 
      */
-    public boolean assignProject(int projectId, List<Integer> employeesId);
+    public boolean assignProject(int projectId, List<Integer> employeesId) throws EmployeeManagementException;
 
     /**
      * projectId are get from user and,
@@ -84,8 +89,9 @@ public interface ProjectService {
      * @param projectId  for remove that specific project. 
      * 
      * @return isDeleted return true when sucessfully deleted or return false
+     * @throws EmployeeManagementException 
      */
-    public boolean deleteOrRestoreProjectDetails(int projectId);
+    public boolean deleteOrRestoreProjectDetails(int projectId) throws EmployeeManagementException;
 	
     /**
      * EmployeeId get from user and,
@@ -104,15 +110,17 @@ public interface ProjectService {
      * @param projectId  For getting specific project employees..
      *
      * @return List  It contains list of employees.
+     * @throws EmployeeManagementException 
      */
-    public List<List<String>> getProjectEmployees(int projectId);
+    public List<List<String>> getProjectEmployees(int projectId) throws EmployeeManagementException;
 
     /**
      * Get allProject details from database and send for user view.
      *
      * @return allProject  list contains all project.
+     * @throws EmployeeManagementException 
      */
-    public List<List<String>> getProjects(boolean isDeleted);
+    public List<List<String>> getProjects(boolean isDeleted) throws EmployeeManagementException;
 
     /**
      * projectId get from user and,
@@ -121,7 +129,8 @@ public interface ProjectService {
      * @param projectsId  For getting specific project details.
      *
      * @return List  It contains list of projects.
+     * @throws EmployeeManagementException 
      */
-    public List<Project> getProjectsForEmployee(List<Integer> projectsId);
+    public List<Project> getProjectsForEmployee(List<Integer> projectsId) throws EmployeeManagementException;
 
 }

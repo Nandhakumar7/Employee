@@ -2,6 +2,9 @@ package com.ideas2it.projectManagement.dao;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.projectManagement.model.Project;
 
 /**
@@ -21,7 +24,7 @@ public interface Dao {
      *
      * @isProjectAdded  return true when added sucessfully or return false. 
      */
-    public int insertProjectDetails(Project project);
+    public int insertProjectDetails(Project project) throws EmployeeManagementException;
 	
     /**
      * Here ProjectID  get from user and,
@@ -31,8 +34,9 @@ public interface Dao {
      * details from  database.
      *
      * @return project   project Details for user view. 
+     * @throws EmployeeManagementException 
      */
-    public Project getProjectDetails(int projectId);
+    public Project getProjectDetails(int projectId) throws EmployeeManagementException;
   
     /**
      * project Details are get from user and,
@@ -41,8 +45,9 @@ public interface Dao {
      * @param project  it contains project details for update.       
      *
      * @return isUpdated true when sucessfully updated or return false.
+     * @throws EmployeeManagementException 
      */
-    public boolean updateProject(Project project);
+    public boolean updateProject(Project project) throws EmployeeManagementException;
 	
     /**
      * projectId get from user and,
@@ -59,8 +64,16 @@ public interface Dao {
      * give to user view	 
      * 
      * @return List It contains all project details.
+     * @throws EmployeeManagementException 
      */
-    public List<Project> getAllProject(boolean isDeleted);
+    public List<Project> getAllProject(boolean isDeleted) throws EmployeeManagementException;
+    
+    /**
+     * used to close the session after complete work	 
+     * 
+     * @param session  to close that session
+     */
+    public void closeSeesion(Session session);
 }
 	  
 

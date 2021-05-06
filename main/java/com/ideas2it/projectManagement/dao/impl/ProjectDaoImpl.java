@@ -6,6 +6,7 @@ import org.hibernate.query.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.projectManagement.dao.Dao;
 import com.ideas2it.projectManagement.model.Project;
 import com.ideas2it.sessionFactory.DataBaseConnection;
@@ -23,9 +24,10 @@ public class ProjectDaoImpl implements Dao {
 	
     /**
      * {@inheritDoc}
+     * @throws EmployeeManagementException  
      */
     @Override
-    public int insertProjectDetails(Project project) {
+    public int insertProjectDetails(Project project) throws EmployeeManagementException {
         int projectId = 0;
         Session session = null;
         try {
@@ -35,20 +37,19 @@ public class ProjectDaoImpl implements Dao {
             projectId = (int)session.save(project);
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
-            session.getTransaction().rollback();
+        	session.getTransaction().rollback();
+        	throw new EmployeeManagementException("EmployeeAdd failure");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
-        return projectId;		
+		return projectId;	
     }
 	
     /**
      * {@inheritDoc}
      */
     @Override
-    public Project getProjectDetails(int projectId) {
+    public Project getProjectDetails(int projectId) throws EmployeeManagementException {
         Session session = null;
         Project project = null;
 		try {
@@ -56,21 +57,31 @@ public class ProjectDaoImpl implements Dao {
             session = sessionFactory.openSession();
             project = (Project) session.get(Project.class, projectId);
             project.getEmployeesList().size();
-        } catch(HibernateException e) { 
-            project = null;
+        } catch(HibernateException e) {
+        	project = null;
+        	throw new EmployeeManagementException("Fail To get Details.Try Again.");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+            closeSeesion(session);
         }			
         return project;
     }
 	
-    /**
+	/**
      * {@inheritDoc}
      */
     @Override
-    public boolean updateProject(Project project) {
+    public void closeSeesion(Session session) {
+        if(session != null) {
+            session.close();
+        }
+	}
+
+	/**
+     * {@inheritDoc}
+	 * @throws EmployeeManagementException 
+     */
+    @Override
+    public boolean updateProject(Project project) throws EmployeeManagementException {
         boolean isUpdated = true;
         Session session = null;
         try {
@@ -80,12 +91,11 @@ public class ProjectDaoImpl implements Dao {
             session.update(project);
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
-            session.getTransaction().rollback();
             isUpdated = false;
+            session.getTransaction().rollback();
+            throw new EmployeeManagementException();
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
         return isUpdated;		
     }
@@ -112,18 +122,17 @@ public class ProjectDaoImpl implements Dao {
         } catch(HibernateException e) {			
             idExists = true;
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }			
         return idExists;
     }
 	
     /**
      * {@inheritDoc}
+     * @throws EmployeeManagementException 
      */ 
 	@Override
-    public List<Project> getAllProject(boolean isDeleted) {
+    public List<Project> getAllProject(boolean isDeleted) throws EmployeeManagementException {
         Session session = null;
         List<Project> projects = null;
 		try {
@@ -135,10 +144,9 @@ public class ProjectDaoImpl implements Dao {
             projects = query.list();
         } catch(HibernateException e) { 
             projects = null;
+            throw new EmployeeManagementException("Fail To get Details.Try Again.");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }			
         return projects;
     }

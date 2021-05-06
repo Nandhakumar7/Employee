@@ -1,15 +1,18 @@
 package com.ideas2it.projectManagement.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ideas2it.projectManagement.service.impl.ProjectServiceImpl;
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.projectManagement.service.ProjectService;
 
 /**
@@ -26,6 +29,8 @@ public class ProjectController extends HttpServlet {
 	 * 
 	 * @param request   it contains action to do operation.
      * @param response  send response of the request to user.
+	 * @throws IOException 
+	 * @throws ServletException 
      */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String action = request.getParameter("action");
@@ -94,16 +99,20 @@ public class ProjectController extends HttpServlet {
      */
 	private void assignAndUnassignEmployees
 	        (HttpServletRequest request, HttpServletResponse response) {
-	    String employeeId[] = (request.getParameterValues("employeeId"));
-		List<Integer> employeesId = new ArrayList<Integer>();
-		int id = Integer.parseInt(request.getParameter("id"));
-		if(null != employeeId) {
-		    for(int i = 0;i< employeeId.length; i ++) {
-			    employeesId.add(Integer.parseInt(employeeId[i]));
+		try {
+	        String employeeId[] = (request.getParameterValues("employeeId"));
+		    List<Integer> employeesId = new ArrayList<Integer>();
+		    int id = Integer.parseInt(request.getParameter("id"));
+		    if(null != employeeId) {
+		        for(int i = 0;i< employeeId.length; i ++) {
+			        employeesId.add(Integer.parseInt(employeeId[i]));
+		        }
 		    }
-		}
-	    projectService.assignProject(id,employeesId);
-	    showProject(request,response);
+		    projectService.assignProject(id,employeesId);
+		    showProject(request,response);
+		} catch (EmployeeManagementException e) {
+    	    sendMessage(e,request,response);	
+    	} 
 	}
 
 
@@ -127,8 +136,10 @@ public class ProjectController extends HttpServlet {
 	        RequestDispatcher dispatcher
 	                = request.getRequestDispatcher("viewProject.jsp");
 	        dispatcher.forward(request, response);
-    	} catch(Exception e) {
-            e.printStackTrace();
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e,request,response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
     	}
 	}
 
@@ -150,9 +161,11 @@ public class ProjectController extends HttpServlet {
             RequestDispatcher dispatcher 
                     = request.getRequestDispatcher("addProject.jsp");
             dispatcher.forward(request, response);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		} catch (EmployeeManagementException e) {
+    	    sendMessage(e,request,response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
+    	}
 	}
 
 	/**
@@ -176,8 +189,10 @@ public class ProjectController extends HttpServlet {
                         = request.getRequestDispatcher("projectHomePage.jsp");
                 dispatcher.forward(request, response);
 	        }
-    	} catch(Exception e) {
-            e.printStackTrace();
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e, request, response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
     	}
 	}
 	
@@ -248,36 +263,34 @@ public class ProjectController extends HttpServlet {
      *
      * @param request   it contains project details to create.
      * @param response  send response of the request to user.
+	 * @throws IOException 
+	 * @throws ServletException 
      */
     public void addProject
             (HttpServletRequest request, HttpServletResponse response) {
-    	try {
-    		String id = request.getParameter("id");
-    		int a = Integer.parseInt(id);
-        	String name = request.getParameter("name");
-        	String manager = request.getParameter("manager");
-        	String department = request.getParameter("department");
-        	int timePeriod =Integer.parseInt(request.getParameter("timePeriod"));
-        	if(0 == a) {
-        		System.out.println("dmnfnnn");
-        	    String message = null;
-        	    int projectId = projectService.addProject
-        	            (name, manager, department,timePeriod);
-        	    if(0 != projectId) {
-                    message = "SUCESSFULLY ADDED! Your ProjectId is "+projectId;    
-        	    } else {
-        	        message = "FAILED TO ADD!..PLEASE TRY AGAIN";    
-        	    }
-        	    request.setAttribute("message", message);
-                RequestDispatcher dispatcher 
+        try {
+            String id = request.getParameter("id");
+            int idForCreate  = Integer.parseInt(id);
+            String name = request.getParameter("name");
+            String manager = request.getParameter("manager");
+            String department = request.getParameter("department");
+            int timePeriod =Integer.parseInt(request.getParameter("timePeriod"));
+            if (0 == idForCreate) {
+                int projectId = projectService.addProject
+                    (name, manager, department,timePeriod);
+                String message = "SUCESSFULLY ADDED! Your ProjectId is "+projectId;
+                request.setAttribute("message", message);
+    		    RequestDispatcher dispatcher 
                         = request.getRequestDispatcher("messagePrint.jsp");
                 dispatcher.forward(request, response);
-        	} else {
-        		updateProject(request,response);
-        	}
-    	} catch(Exception e) {
-            e.printStackTrace();
-    	}
+            } else {
+                updateProject(request,response);
+            }
+        } catch (EmployeeManagementException e) {
+            sendMessage(e,request,response);	
+        } catch (ServletException | IOException  e) {
+        	e.printStackTrace();
+        }
     }
 
 	/**
@@ -301,8 +314,10 @@ public class ProjectController extends HttpServlet {
             RequestDispatcher dispatcher
                     = request.getRequestDispatcher("viewProject.jsp");
             dispatcher.forward(request, response);
-    	} catch(Exception e) {
-            e.printStackTrace();
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e,request,response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
     	}
     }
       
@@ -321,19 +336,17 @@ public class ProjectController extends HttpServlet {
          	String manager = request.getParameter("manager");
          	String department = request.getParameter("department");
          	int timePeriod = Integer.parseInt(request.getParameter("timePeriod"));
-           	String message = null;
-        	if(projectService.updateProject
-        	        (id, name, manager, department,timePeriod)) {
-                message = "SUCESSFULLY UPDATED!";    
-        	} else {
-                message = "FAILED TO UPDATE!..PLEASE TRY AGAIN";    
-        	}
+        	projectService.updateProject
+        	        (id, name, manager, department,timePeriod);
+        	String message = "SUCESSFULLY UPDATED!";    
         	request.setAttribute("message", message);
             RequestDispatcher dispatcher 
                     = request.getRequestDispatcher("messagePrint.jsp");
             dispatcher.forward(request, response);
-    	} catch(Exception e) {
-            e.printStackTrace();
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e, request, response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
     	}
     }
     
@@ -348,18 +361,29 @@ public class ProjectController extends HttpServlet {
             (HttpServletRequest request, HttpServletResponse response) {
     	try {
     		int id = Integer.parseInt(request.getParameter("id"));
-            String message = null;
-            if(projectService.deleteOrRestoreProjectDetails(id)) {
-                message = "OPERATION SUCESSFULL!";    
-       	    } else {
-       		    message = "FAILED TO DELETE!..PLEASE TRY AGAIN";    
-       	    }
+            projectService.deleteOrRestoreProjectDetails(id);
+            String message = "OPERATION SUCESSFULL!";
        	    request.setAttribute("message", message);
             RequestDispatcher dispatcher 
                     = request.getRequestDispatcher("messagePrint.jsp");
             dispatcher.forward(request, response);
-    	} catch(Exception e) {
-            e.printStackTrace();
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e,request,response);	
+    	} catch (ServletException | IOException  e) {
+    		e.printStackTrace();
     	}
+    }
+    
+    private void sendMessage(EmployeeManagementException e,HttpServletRequest request,
+    		HttpServletResponse response) {
+    	String message = e.getMessage();
+		try {
+            request.setAttribute("message", message);
+		    RequestDispatcher dispatcher 
+                    = request.getRequestDispatcher("messagePrint.jsp");
+            dispatcher.forward(request, response);
+	    } catch(ServletException | IOException  exception) {
+	    	exception.printStackTrace();	
+	    }	
     }
 }
