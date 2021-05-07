@@ -2,6 +2,9 @@ package com.ideas2it.employeeManagement.dao;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.employeeManagement.model.Employee;
 
 /**
@@ -18,10 +21,11 @@ public interface Dao {
      * add Employee details to database.
      *
      * @param employee   that contains all details of employee.
+     * @throws EmployeeManagementException 
      *
      * @isEmployeeAdded  return true when added sucessfully or return false. 
      */
-    public int insertEmployeeDetails(Employee employee);
+    public int insertEmployeeDetails(Employee employee) throws EmployeeManagementException;
 	
     /**
      * getting new address from user and add to database.
@@ -29,8 +33,9 @@ public interface Dao {
      * @param employeeId  it contains new address to add.
      * 
      * @return isAdded return true when sucessfully added or return false
+     * @throws EmployeeManagementException 
      */
-    public boolean addNewAddress(Employee employee);
+    public boolean addNewAddress(Employee employee) throws EmployeeManagementException;
 	
     /**
      * Here EmployeeID  get from user and,
@@ -40,8 +45,9 @@ public interface Dao {
      * details from employees map. 
      *
      * @return employee   Employee Details for user View. 
+     * @throws EmployeeManagementException 
      */
-    public Employee getEmployeeDetails(int employeeId);
+    public Employee getEmployeeDetails(int employeeId) throws EmployeeManagementException;
 	
     /**
      * Employee Details are get from user and,
@@ -50,15 +56,17 @@ public interface Dao {
      * @param employee  it contains details to update
      *
      * @return isUpdated true when sucessfully updated or return false.
+     * @throws EmployeeManagementException 
      */
-    public boolean updateEmployee(Employee employee);
+    public boolean updateEmployee(Employee employee) throws EmployeeManagementException;
 	 
     /**
      * Get AllEmployees details from employeesMap and send for user view.
      *
      * @return allEmployees  list contains all employeeDetails.
+     * @throws EmployeeManagementException 
      */
-    public List getAllEmployeeDetails(boolean isDeleted);
+    public List getAllEmployeeDetails(boolean isDeleted) throws EmployeeManagementException;
 	  
     /**
      * EmployeeId get from user and,
@@ -69,7 +77,13 @@ public interface Dao {
      * @return true when Employee ID already Registered or return false.
      */  
     public boolean checkEmployeeIdExists(int employeeId);
-    
+
+    /**
+	 * used to close the session 
+	 * 
+	 * @param session close the specific session
+     */
+	public void closeSeesion(Session session);  
 }
 	  
 

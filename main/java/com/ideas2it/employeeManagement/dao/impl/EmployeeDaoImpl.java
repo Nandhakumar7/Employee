@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
 import com.ideas2it.sessionFactory.DataBaseConnection;
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.employeeManagement.dao.Dao;
 import com.ideas2it.employeeManagement.model.Employee;
 
@@ -25,7 +26,7 @@ public class EmployeeDaoImpl implements Dao {
      * {@inheritDoc}
      */
     @Override
-    public int insertEmployeeDetails(Employee employee) {
+    public int insertEmployeeDetails(Employee employee) throws EmployeeManagementException {
         int employeeId = 0;
         Session session = null;
         try {
@@ -36,20 +37,18 @@ public class EmployeeDaoImpl implements Dao {
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
             session.getTransaction().rollback();
-            employeeId = 0;
+            throw new EmployeeManagementException("Employee Add failure");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
         return employeeId;		
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 
      */
     @Override
-    public boolean updateEmployee(Employee employee) {
+    public boolean updateEmployee(Employee employee) throws EmployeeManagementException {
         boolean isUpdated = true;
         Session session = null;
         try {
@@ -60,20 +59,19 @@ public class EmployeeDaoImpl implements Dao {
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
             session.getTransaction().rollback();
-            isUpdated = false;
+            throw new EmployeeManagementException(e);
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
         return isUpdated;		
     }		
 	
     /**
      * {@inheritDoc}
+     * @throws EmployeeManagementException 
      */
    @Override
-    public Employee getEmployeeDetails(int employeeId) {
+    public Employee getEmployeeDetails(int employeeId) throws EmployeeManagementException {
         Session session = null;
         Employee employee = null;
 		try {
@@ -84,10 +82,9 @@ public class EmployeeDaoImpl implements Dao {
             employee.getProjectList().size();
         } catch(HibernateException e) { 
             employee = null;
+            throw new EmployeeManagementException("Failed to get Details..Try Again..");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
         return employee;
     }
@@ -96,7 +93,7 @@ public class EmployeeDaoImpl implements Dao {
      * {@inheritDoc}
      */
     @Override
-    public boolean addNewAddress(Employee employee) {
+    public boolean addNewAddress(Employee employee) throws EmployeeManagementException {
         boolean isAddressAdded = true;
         Session session = null;
         try {
@@ -108,19 +105,18 @@ public class EmployeeDaoImpl implements Dao {
         } catch(HibernateException e) {
             session.getTransaction().rollback();
             isAddressAdded = false;
+            throw new EmployeeManagementException("Address Adding Failure");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }
         return isAddressAdded;
     }
 	 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 
      */ 
     @Override
-    public List getAllEmployeeDetails(boolean isDeleted) {
+    public List getAllEmployeeDetails(boolean isDeleted) throws EmployeeManagementException {
         Session session = null;
         List<Employee> employees = null;
 		try {
@@ -132,10 +128,9 @@ public class EmployeeDaoImpl implements Dao {
             employees = query.list();
         } catch(HibernateException e) { 
             employees = null;
+            throw new EmployeeManagementException("Failed to get Details..Try Again..");
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }			
         return employees;
     } 
@@ -160,12 +155,21 @@ public class EmployeeDaoImpl implements Dao {
         } catch(HibernateException e) { 
             idExists = true;
         } finally {
-            if(session != null) {
-                session.close();
-            }
+        	closeSeesion(session);
         }			
         return idExists;
     }
+    
+	/**
+     * {@inheritDoc}
+     */
+	@Override
+    public void closeSeesion(Session session) {
+        if(session != null) {
+            session.close();
+        }
+	}
+
 }
 	  
 

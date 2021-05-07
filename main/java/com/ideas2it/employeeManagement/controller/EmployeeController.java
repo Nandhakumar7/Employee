@@ -1,14 +1,17 @@
 package com.ideas2it.employeeManagement.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.employeeManagement.service.EmployeeService;
 import com.ideas2it.employeeManagement.service.impl.EmployeeServiceImpl;
 
@@ -28,7 +31,7 @@ public class EmployeeController extends HttpServlet {
 	 * @param request   it contains action to do operation.
      * @param response  send response of the request to user.
      */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String action = request.getParameter("action");
 		switch (action) {
 		    case "add":
@@ -51,7 +54,7 @@ public class EmployeeController extends HttpServlet {
 		    	break;
 		    default:
 		        break;
-		 }
+	    }
 	}
 	
 	/**
@@ -105,7 +108,7 @@ public class EmployeeController extends HttpServlet {
 	}
 	
 	/**
-     * call employeeHome page for doing crud operation.
+     * call employeeHome page for doing Employee crud operation.
      *
      * @param request   it contains request of employeePage
      * @param response  send response of the request to user.
@@ -114,8 +117,9 @@ public class EmployeeController extends HttpServlet {
             (HttpServletRequest request, HttpServletResponse response) {
     	try {
     		response.sendRedirect("employeeHomePage.jsp"); 
-    	} catch(Exception e) {
-    		e.printStackTrace();
+    	} catch (IOException  e) {
+    		String message = "Fail To LoadPage..Try Again.."; 
+    		sendMessage(message, request, response);	
     	}
 	}
     
@@ -127,10 +131,11 @@ public class EmployeeController extends HttpServlet {
      */
 	private void addEmployeeFormCall
 	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
+	    try {
     		response.sendRedirect("addEmployee.jsp"); 
-    	} catch(Exception e) {
-    		e.printStackTrace();
+    	} catch (IOException  e) {
+    		String message = "Fail To LoadPage..Try Again.."; 
+    		sendMessage(message, request, response);	
     	}
 	}
 
@@ -144,12 +149,12 @@ public class EmployeeController extends HttpServlet {
 	        (HttpServletRequest request, HttpServletResponse response) {
 		try {
     		response.sendRedirect("mainPage.html"); 
-    	} catch(Exception e) {
-    		e.printStackTrace();
+    	} catch (IOException  e) {
+    		String message = "Fail To LoadPage..Try Again.."; 
+    		sendMessage(message, request, response);	
     	}
 	}
         
-	
 	/**
      * call viewProject  page for user view project details.
      *
@@ -160,8 +165,9 @@ public class EmployeeController extends HttpServlet {
 	        (HttpServletRequest request, HttpServletResponse response) {
 		try {
 			response.sendRedirect("showEmployee.jsp"); 
-    	} catch(Exception e) {
-    		e.printStackTrace();
+    	} catch (IOException  e) {
+    		String message = "Fail To LoadPage..Try Again.."; 
+    		sendMessage(message, request, response);	
     	}
 	}
 
@@ -174,16 +180,20 @@ public class EmployeeController extends HttpServlet {
      */
 	private void assignAndUnassignProjects
 	        (HttpServletRequest request, HttpServletResponse response) {
-        String projectId[] = (request.getParameterValues("projectsId"));
-		List<Integer> projectsId = new ArrayList<Integer>();
-		int id = Integer.parseInt(request.getParameter("employeeId"));
-		if(null != projectId) {
-		    for(int i = 0;i< projectId.length; i ++) {
-		        projectsId.add(Integer.parseInt(projectId[i]));
+		try {
+            String projectId[] = (request.getParameterValues("projectsId"));
+		    List<Integer> projectsId = new ArrayList<Integer>();
+		    int id = Integer.parseInt(request.getParameter("employeeId"));
+		    if(null != projectId) {
+		        for(int i = 0;i< projectId.length; i ++) {
+		            projectsId.add(Integer.parseInt(projectId[i]));
+		        }
 		    }
-		}
-		employeeService.assignProject(id, projectsId);
-		showEmployee(request,response);
+		    employeeService.assignProject(id, projectsId);
+		    showEmployee(request,response);
+		} catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	}
 	}
 
     /**
@@ -205,9 +215,12 @@ public class EmployeeController extends HttpServlet {
             RequestDispatcher dispatcher
                     = request.getRequestDispatcher("showEmployee.jsp");
             dispatcher.forward(request, response);
-	    } catch(Exception e) {
-	    	e.printStackTrace();
-	    }
+	    } catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(), request, response);	
+    	} catch (ServletException | IOException  e) {
+    		String message = "Fail To Display details please try again"; 
+    		sendMessage(message, request, response);	
+    	}
     }
 
     /**
@@ -224,9 +237,10 @@ public class EmployeeController extends HttpServlet {
 			RequestDispatcher dispatcher
 		            = request.getRequestDispatcher("editEmployee.jsp");
 		    dispatcher.forward(request, response);	
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+	    } catch (ServletException | IOException  e) {
+    		String message = "Fail To Display Employee details please try again"; 
+    		sendMessage(message, request, response);	
+    	}
     }
 
     /**
@@ -238,13 +252,17 @@ public class EmployeeController extends HttpServlet {
      */
 	private void addNewAddress
 	        (HttpServletRequest request, HttpServletResponse response) {
-        employeeService.addNewAddress
-                (Integer.parseInt(request.getParameter("employeeId")),
-	            Integer.parseInt(request.getParameter("doorNumber")),
-	            request.getParameter("streetName"), request.getParameter("state"),
-	            request.getParameter("district"),request.getParameter("country"),
-	            Integer.parseInt(request.getParameter("pincode")));
-        showEmployee(request,response);	
+		try {
+            employeeService.addNewAddress
+                    (Integer.parseInt(request.getParameter("employeeId")),
+	                Integer.parseInt(request.getParameter("doorNumber")),
+	                request.getParameter("streetName"), request.getParameter("state"),
+	                request.getParameter("district"),request.getParameter("country"),
+	                Integer.parseInt(request.getParameter("pincode")));
+            showEmployee(request,response);	
+		} catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	}
     }
 
     /**
@@ -256,10 +274,14 @@ public class EmployeeController extends HttpServlet {
      */
     private void updateAsPrimary
             (HttpServletRequest request, HttpServletResponse response) {
-        employeeService.updateAsPrimaryAddress
-                (Integer.parseInt(request.getParameter("count")),
-    			Integer.parseInt(request.getParameter("employeeId")));
-    	showEmployee(request,response);	
+    	try {
+            employeeService.updateAsPrimaryAddress
+                    (Integer.parseInt(request.getParameter("count")),
+    		    	Integer.parseInt(request.getParameter("employeeId")));
+    	    showEmployee(request,response);	
+    	} catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	}
 	}
 
     /**
@@ -271,10 +293,14 @@ public class EmployeeController extends HttpServlet {
      */
 	private void deleteAddress
 	        (HttpServletRequest request, HttpServletResponse response) {
-	    employeeService.deleteEmployeeAddress
-	            (Integer.parseInt(request.getParameter("count")),
-		        Integer.parseInt(request.getParameter("employeeId")));
-		showEmployee(request,response);
+		try {
+	        employeeService.deleteEmployeeAddress
+	                (Integer.parseInt(request.getParameter("count")),
+		            Integer.parseInt(request.getParameter("employeeId")));
+		    showEmployee(request,response);
+		} catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	}
 	}
 
     /**
@@ -283,18 +309,24 @@ public class EmployeeController extends HttpServlet {
      *
      * @param request   it contains  employeeId and address details.
      * @param response  send response of the request to user.
+     * @throws EmployeeManagementException 
+     * @throws NumberFormatException 
      */
 	private void updateAddress
 	        (HttpServletRequest request, HttpServletResponse response) {
-        String count =request.getParameter("count");
-		employeeService.updateAddress(Integer.parseInt(count),
-		        Integer.parseInt(request.getParameter("employeeId")),
-				Integer.parseInt(request.getParameter("doorNumber")),
-				request.getParameter("streetName"), request.getParameter("state"), 
-				request.getParameter("district"),
-				request.getParameter("country"),
-				Integer.parseInt(request.getParameter("pincode")));
-	    showEmployee(request,response);
+        try {
+            String count =request.getParameter("count");
+		    employeeService.updateAddress(Integer.parseInt(count),
+		            Integer.parseInt(request.getParameter("employeeId")),
+				    Integer.parseInt(request.getParameter("doorNumber")),
+				    request.getParameter("streetName"), request.getParameter("state"), 
+				    request.getParameter("district"),
+				    request.getParameter("country"),
+				    Integer.parseInt(request.getParameter("pincode")));
+	        showEmployee(request,response);
+        } catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	}   
 	}
 
     /**
@@ -313,9 +345,12 @@ public class EmployeeController extends HttpServlet {
 			RequestDispatcher dispatcher 
 			        = request.getRequestDispatcher("editAddress.jsp");
 	        dispatcher.forward(request, response);	
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+	    } catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	} catch (ServletException | IOException  e) {
+    		String message = "Fail To Display Address details please try again"; 
+    		sendMessage(message, request, response);	
+    	} 
 	}
 
     /**
@@ -323,16 +358,18 @@ public class EmployeeController extends HttpServlet {
      * 
      * @param request   it contains  employeeId and address details.
      * @param response  send response of the request to user.
+     * @throws  
      */
 	private void newAddressFormCall
 	        (HttpServletRequest request, HttpServletResponse response) {
 		try {
 			RequestDispatcher dispatcher
-			        = request.getRequestDispatcher("editAddress.jsp");
-	        dispatcher.forward(request, response);
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+            = request.getRequestDispatcher("editAddress.jsp");
+            dispatcher.forward(request, response);
+	    } catch (ServletException | IOException  e) {
+    		String message = "Fail To LoadPage..Try Again.."; 
+    		sendMessage(message, request, response);	
+    	}
 	}
 
     /**
@@ -341,10 +378,10 @@ public class EmployeeController extends HttpServlet {
      * @param request   it contains request of get all employee.
      * @param response  send response of the request to user.
      */
-	private void getAllEmployees
+    private void getAllEmployees
 	        (HttpServletRequest request, HttpServletResponse response) { 
-		try {
-			String userRequest = request.getParameter("isDeleted");
+	    try {
+		    String userRequest = request.getParameter("isDeleted");
 			boolean isDeleted = Boolean.parseBoolean(userRequest);
 	        request.setAttribute("allEmployees", employeeService.getAllEmployee(isDeleted));
 	        if(isDeleted) {
@@ -356,9 +393,12 @@ public class EmployeeController extends HttpServlet {
                         = request.getRequestDispatcher("employeeHomePage.jsp");
                 dispatcher.forward(request, response);
 	        }
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+	    } catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	} catch (ServletException | IOException  e) {
+    		String message = "Fail To Display details please try again"; 
+    		sendMessage(message, request, response);	
+    	}
 	}
 	
 	
@@ -370,38 +410,40 @@ public class EmployeeController extends HttpServlet {
      */
     public void addEmployee
             (HttpServletRequest request, HttpServletResponse response) {
+        String message = null;
     	try {
-    		String name = request.getParameter("name");
+    	    String name = request.getParameter("name");
        	    float salary = Float.parseFloat(request.getParameter("salary"));
        	    String mobileNumber = request.getParameter("mobileNumber");
        	    String date = request.getParameter("dateOfBirth");
        	    java.util.Date DateOfBirth = employeeService.getDateOfBirth(date);
        	    List<List<String>> addresses = getAddressList(request, response);
-       	    String message = null;
-       	    int employeeId
-       	            = (employeeService.addEmployeeDetails
-       	            (name, salary, mobileNumber, DateOfBirth, addresses));
-       	    if(0 != employeeId) {
-                message = "SUCESSFULLY ADDED! + YOUR EmployeeId id is :"+ employeeId;    
-    	    } else {
-    	        message = "FAILED TO ADD!..PLEASE TRY AGAIN";    
-    	    }
-    	    request.setAttribute("message", message);
-            RequestDispatcher dispatcher 
-                    = request.getRequestDispatcher("messagePrint.jsp");
-            dispatcher.forward(request, response);
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
-	}
+       	    if (employeeService.validateMobileNumber(mobileNumber)) {
+       	    	int employeeId = (employeeService.addEmployeeDetails
+   	                    (name, salary, mobileNumber, DateOfBirth, addresses));
+   	            if(0 != employeeId) {
+                    message = "SUCESSFULLY ADDED! + YOUR EmployeeId id is :"
+   	                        + employeeId;    
+	            } else {
+	                message = "FAILED TO ADD!..PLEASE TRY AGAIN"; 
+	            }
+	        } else {
+	        	message = "Checek Your Mobile Number";
+	        }
+       	    sendMessage(message,request,response);	
+	    } catch (EmployeeManagementException e) {
+	        message = e.getMessage();
+   	        sendMessage(message,request,response);	
+   	    }
+    }
    
-   /**
-    * get address details from user and put into list
-    *
-    * @param request   it contains address List
-    * @param response  send response of the request to user.
-    * @return List it contains addresslist
-    */   
+    /**
+     * get address details from user and put into list
+     *
+     * @param request   it contains address List
+     * @param response  send response of the request to user.
+     * @return List it contains addresslist
+     */   
     private List<List<String>> getAddressList
             (HttpServletRequest request, HttpServletResponse response) {
         List<String> primaryAddress = new LinkedList<String>();
@@ -426,17 +468,18 @@ public class EmployeeController extends HttpServlet {
 	   	return addresses;
     }
 
-   /**
-    * Employee Id and details are get from database
-    * and send to view
-    *
-    * @param request   it contains employeeId to get details.
-    * @param response  send response of the request to user.
-    */
+    /**
+     * Employee Id and details are get from database
+     * and send to view
+     *
+     * @param request   it contains employeeId to get details.
+     * @param response  send response of the request to user.
+     */
     public void showEmployee
             (HttpServletRequest request, HttpServletResponse response) {
+    	String message = null;
     	try {
-    		int id = Integer.parseInt(request.getParameter("employeeId"));
+    	    int id = Integer.parseInt(request.getParameter("employeeId"));
        	    List<List<String>> employee = new LinkedList<List<String>>();
             if(!(employeeService.checkEmployeeIdExists(id))) {
        	        employee = employeeService.getEmployeeDetails(id);
@@ -445,15 +488,15 @@ public class EmployeeController extends HttpServlet {
                         = request.getRequestDispatcher("showEmployee.jsp");
                 dispatcher.forward(request, response);
             } else {
-            	String message = "EmployeeNot Exists";
-            	request.setAttribute("message", message);
-     	        RequestDispatcher dispatcher
-     	                = request.getRequestDispatcher("messagePrint.jsp");
-     	        dispatcher.forward(request, response);
+            	message = "EmployeeNot Exists";
+            	sendMessage(message, request, response);
             }
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+	    } catch (EmployeeManagementException e) {
+    	    sendMessage(e.getMessage(),request,response);	
+    	} catch (ServletException | IOException  e) {
+    		message = "Fail To Display details please try again"; 
+    		sendMessage(message, request, response);	
+    	}
     }
      
 
@@ -464,22 +507,29 @@ public class EmployeeController extends HttpServlet {
      * @param request   it contains employeeId and details to update.
      * @param response  send response of the request to user.
      */
-	public void updateEmployee
+    public void updateEmployee
 	        (HttpServletRequest request, HttpServletResponse response) {
+    	String message = null;
 		try {
-			int id = Integer.parseInt(request.getParameter("employeeId"));
-	    	String name = request.getParameter("name");
-	       	Float salary = Float.parseFloat(request.getParameter("salary"));
-	       	String mobileNumber = request.getParameter("mobileNumber");
-	       	String date = request.getParameter("dateOfBirth");
-	       	java.util.Date DateOfBirth = employeeService.getDateOfBirth(date);
-	    	employeeService.updateEmployee
-	    	        (id, name, salary, mobileNumber, DateOfBirth);
-	    	showEmployee(request,response);
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
-   }
+            int id = Integer.parseInt(request.getParameter("employeeId"));
+            String name = request.getParameter("name");
+            Float salary = Float.parseFloat(request.getParameter("salary"));
+            String mobileNumber = request.getParameter("mobileNumber");
+            String date = request.getParameter("dateOfBirth");
+            java.util.Date DateOfBirth = employeeService.getDateOfBirth(date);
+            if (employeeService.validateMobileNumber(mobileNumber)) {
+	    	    employeeService.updateEmployee
+	    	            (id, name, salary, mobileNumber, DateOfBirth);
+	    	    showEmployee(request,response);
+            } else {
+            	message = "Invalid Mobile Number..Update Failure";
+       	        sendMessage(message,request,response);
+            }
+	    } catch (EmployeeManagementException e) {
+	    	message = e.getMessage();
+   	        sendMessage(message,request,response);	
+   	    }
+    }
    
     /**
      * Employee Id are get from user and,
@@ -488,24 +538,37 @@ public class EmployeeController extends HttpServlet {
      * @param request   Http request it contains employeeId to delete.
      * @param response  send response of the request to user.
      */
-   public void deleteOrRestoreEmployee
+    public void deleteOrRestoreEmployee
            (HttpServletRequest request, HttpServletResponse response) {
-	   try {
-		   System.out.println("hiialllakjeklde");
-		   int id = Integer.parseInt(request.getParameter("employeeId"));
-		   System.out.println(id);
-	       String message =null;
-	       if(employeeService.deleteOrRestoreEmployee(id)) {
-	           message = "OPERATION SUCESSFULL!";    
-		   } else {
-			    message = "FAILED TO DELETE!..PLEASE TRY AGAIN";    
-		   }
-		   request.setAttribute("message", message);
-	       RequestDispatcher dispatcher
-	               = request.getRequestDispatcher("messagePrint.jsp");
-	       dispatcher.forward(request, response);
-	    } catch(Exception e) {
-	        e.printStackTrace();
-	    }
+	    String message =null;
+	    try {
+		    int id = Integer.parseInt(request.getParameter("employeeId"));
+	        employeeService.deleteOrRestoreEmployee(id);
+	        message = "OPERATION SUCESSFULL!";    
+	        sendMessage(message,request,response);
+	    } catch (EmployeeManagementException e) {
+	    	message = e.getMessage();
+   	        sendMessage(message,request,response);	
+   	    }
+    }
+
+    /**
+     * view message to user whether operation sucessfully 
+     * done or not
+     *
+     * @param message    it contains message to display.
+     * @param request   it contains projectId to delete.
+     * @param response  send response of the request to user.
+     */
+    private void sendMessage(String message,HttpServletRequest request,
+            HttpServletResponse response) {
+	    try {
+            request.setAttribute("message", message);
+		    RequestDispatcher dispatcher 
+                    = request.getRequestDispatcher("messagePrint.jsp");
+            dispatcher.forward(request, response);
+	    } catch(ServletException | IOException  exception) {
+            exception.printStackTrace();	
+	    }	
     }
 }

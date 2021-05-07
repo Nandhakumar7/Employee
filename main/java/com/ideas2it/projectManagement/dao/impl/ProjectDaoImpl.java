@@ -38,7 +38,7 @@ public class ProjectDaoImpl implements Dao {
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
         	session.getTransaction().rollback();
-        	throw new EmployeeManagementException("EmployeeAdd failure");
+        	throw new EmployeeManagementException("Project Add failure");
         } finally {
         	closeSeesion(session);
         }
@@ -93,7 +93,7 @@ public class ProjectDaoImpl implements Dao {
         } catch(HibernateException e) {
             isUpdated = false;
             session.getTransaction().rollback();
-            throw new EmployeeManagementException();
+            throw new EmployeeManagementException(e);
         } finally {
         	closeSeesion(session);
         }
