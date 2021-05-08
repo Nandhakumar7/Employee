@@ -69,8 +69,9 @@ public interface EmployeeService {
      * @param employeeId  For checking whether already we have or not.
      *
      * @return true when Employee ID already Registered or return false.
+     * @throws EmployeeManagementException 
      */
-    public boolean checkEmployeeIdExists(int employeeId);
+    public boolean checkEmployeeIdExists(int employeeId) throws EmployeeManagementException;
     
     /**
      * Get AllEmployees details from employeesMap and send for user view.
@@ -87,8 +88,9 @@ public interface EmployeeService {
      * @param projectId  For checking whether already we have or not.
      *
      * @return true when Employee ID already Registered or return false.
+     * @throws EmployeeManagementException 
      */
-    public boolean checkProjectIdExists(int projectId);
+    public boolean checkProjectIdExists(int projectId) throws EmployeeManagementException;
 
     /**
      * Check whether given mobilenumber valid or not.
@@ -124,7 +126,7 @@ public interface EmployeeService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */     
-    public boolean updateEmployee(int employeeId, String name, float salary,
+    public void updateEmployee(int employeeId, String name, float salary,
             String mobileNumber, Date dateOfBirth) throws EmployeeManagementException;
     
     /**
@@ -154,7 +156,7 @@ public interface EmployeeService {
      * @return boolean true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public boolean updateAsPrimaryAddress(int choosedAddress, int employeeId) throws EmployeeManagementException;
+    public void updateAsPrimaryAddress(int choosedAddress, int employeeId) throws EmployeeManagementException;
 	
     /**
      * Employee Details are get from user and,
@@ -172,7 +174,7 @@ public interface EmployeeService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public boolean updateAddress(int choosedAddress, int employeeId,
+    public void updateAddress(int choosedAddress, int employeeId,
             int doorNumber, String streetName, String district, String State,
             String Country, int pinCode) throws EmployeeManagementException;
 
@@ -205,7 +207,7 @@ public interface EmployeeService {
      * @return isDeleted return true when sucessfully deleted or return false
      * @throws EmployeeManagementException 
      */
-    public boolean deleteOrRestoreEmployee(int employeeId) throws EmployeeManagementException;
+    public void deleteOrRestoreEmployee(int employeeId) throws EmployeeManagementException;
 
     /**
      * projectId and employeeId are get from user and,
@@ -217,7 +219,7 @@ public interface EmployeeService {
      * @return isAssigned return true when sucessfully assigned or return false
      * @throws EmployeeManagementException 
      */
-    public boolean assignProject(int employeeId, List projectsId) throws EmployeeManagementException;
+    public void assignProject(int employeeId, List projectsId) throws EmployeeManagementException;
 
     /**
      * projectId get from user and,

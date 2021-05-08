@@ -1,14 +1,8 @@
 package com.ideas2it.projectManagement.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import org.hibernate.HibernateException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.ideas2it.projectManagement.dao.impl.ProjectDaoImpl;
 import com.ideas2it.Exception.EmployeeManagementException;
@@ -16,6 +10,7 @@ import com.ideas2it.employeeManagement.model.Employee;
 import com.ideas2it.projectManagement.model.Project;
 import com.ideas2it.employeeManagement.service.EmployeeService;
 import com.ideas2it.employeeManagement.service.impl.EmployeeServiceImpl;
+import com.ideas2it.logger.EmployeeManagementLogger;
 import com.ideas2it.projectManagement.service.ProjectService;
 
 /**
@@ -27,10 +22,9 @@ import com.ideas2it.projectManagement.service.ProjectService;
  */
 public class ProjectServiceImpl implements ProjectService{
     private ProjectDaoImpl projectDaoImpl = new ProjectDaoImpl();
-
+    
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */
     @Override
     public int addProject(String projectName,
@@ -44,10 +38,10 @@ public class ProjectServiceImpl implements ProjectService{
 			
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */
     @Override
-    public List<String> getProjectDetails(int projectId) throws EmployeeManagementException {
+    public List<String> getProjectDetails(int projectId) 
+            throws EmployeeManagementException {
         Project project = projectDaoImpl.getProjectDetails(projectId);
         List<String> projectDetails = new LinkedList<String>();
         List<Employee> employees = new ArrayList<Employee>();
@@ -75,7 +69,8 @@ public class ProjectServiceImpl implements ProjectService{
      * {@inheritDoc}
      */ 
     @Override
-    public boolean checkProjectIdExists(int projectId){
+    public boolean checkProjectIdExists(int projectId) 
+    		throws EmployeeManagementException  {
         return(projectDaoImpl.checkProjectIdExists(projectId));
     }
 
@@ -83,7 +78,8 @@ public class ProjectServiceImpl implements ProjectService{
      * {@inheritDoc}
      */ 
 	@Override
-    public List<List<String>> getProjects(boolean isDeleted) throws EmployeeManagementException {
+    public List<List<String>> getProjects(boolean isDeleted) 
+            throws EmployeeManagementException {
         List<Project> allProject = projectDaoImpl.getAllProject(isDeleted);
         List<List<String>> projects = new LinkedList<List<String>>();
         for(Project project : allProject) {
@@ -102,8 +98,10 @@ public class ProjectServiceImpl implements ProjectService{
      * {@inheritDoc}
      */ 
     @Override
-    public boolean updateProject(int projectId, String projectName, String managerName,
+    public void updateProject(int projectId, String projectName, String managerName,
             String department, int timePeriod) throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	Project project = null;
     	try {
             project = projectDaoImpl.getProjectDetails(projectId);
@@ -119,18 +117,22 @@ public class ProjectServiceImpl implements ProjectService{
             project.setManagerName(newManagerName);
             project.setDepartment(newDepartment);
             project.setTimePeriod(newTimePeriod);
+            projectDaoImpl.updateProject(project);
     	} catch (EmployeeManagementException e) {
+    		log.logError("Failed to update Project Id is" + projectId, e);
         	throw new EmployeeManagementException("Employee Update Failure");
     	}
-        return projectDaoImpl.updateProject(project);
     }
 	
     /**
      * {@inheritDoc} 
      */ 
     @Override
-    public boolean assignProject(int projectId, List<Integer> employeeId) throws EmployeeManagementException {
+    public void assignProject(int projectId, List<Integer> employeeId) 
+            throws EmployeeManagementException {
     	Project project = null;
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	try {
             EmployeeService employeeService = new EmployeeServiceImpl();
             project = projectDaoImpl.getProjectDetails(projectId);
@@ -138,18 +140,19 @@ public class ProjectServiceImpl implements ProjectService{
             List<Employee> employees 
                     = employeeService.getEmployeeForProject(employeeId);
             project.setEmployeesList(employees);
+            projectDaoImpl.updateProject(project);
     	} catch (EmployeeManagementException e) {
+    		log.logError("Failed to Assigning Employees,Project Id is " + projectId, e);
         	throw new EmployeeManagementException("Employee Assigning/UnAssigning Failure");
     	} 
-        return projectDaoImpl.updateProject(project);
     }
 
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */
     @Override
-	public List<Project> getProjectsForEmployee(List<Integer> projectsId) throws EmployeeManagementException {
+	public List<Project> getProjectsForEmployee(List<Integer> projectsId) 
+	        throws EmployeeManagementException {
     	List<Project> requiredProjects = new ArrayList<Project>();
     	try {
             List<Project> projects = projectDaoImpl.getAllProject(false);
@@ -159,7 +162,8 @@ public class ProjectServiceImpl implements ProjectService{
                 }
             }
     	} catch (EmployeeManagementException e) {
-            throw new EmployeeManagementException("SomeThing Went Wrong Try Again!");
+            throw new EmployeeManagementException
+                    ("SomeThing Went Wrong Try Again!");
         } 
         return requiredProjects;
     }
@@ -167,10 +171,12 @@ public class ProjectServiceImpl implements ProjectService{
     
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */ 
     @Override
-    public boolean deleteOrRestoreProjectDetails(int projectId) throws EmployeeManagementException {
+    public void deleteOrRestoreProjectDetails(int projectId) 
+             throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	Project project = null;
     	try {
             project = projectDaoImpl.getProjectDetails(projectId);
@@ -180,17 +186,19 @@ public class ProjectServiceImpl implements ProjectService{
         	    project.setIsDeleted(true);
             }
             project.setEmployeesList(null);
+            projectDaoImpl.updateProject(project);
     	}  catch (EmployeeManagementException e) {
+    		log.logError("Failed to Delete or Restore " + projectId, e);
             throw new EmployeeManagementException("Fail To Delete");
         }  
-        return projectDaoImpl.updateProject(project);
     }
 	
     /**
      * {@inheritDoc}
      */ 
     @Override  
-    public boolean checkEmployeeIdExists(int employeeId) {
+    public boolean checkEmployeeIdExists(int employeeId) 
+    		throws EmployeeManagementException {
         EmployeeService employeeService = new EmployeeServiceImpl();		
         return employeeService.checkEmployeeIdExists(employeeId);
     }
@@ -200,7 +208,8 @@ public class ProjectServiceImpl implements ProjectService{
      * @throws EmployeeManagementException 
      */ 
     @Override
-    public List<List<String>> getProjectEmployees(int projectId) throws EmployeeManagementException {
+    public List<List<String>> getProjectEmployees(int projectId) 
+            throws EmployeeManagementException {
     	List<List<String>> employeeProjectAssignedDetails = new LinkedList<List<String>>();
     	try { 
     	    EmployeeService employeeService = new EmployeeServiceImpl();
@@ -229,7 +238,8 @@ public class ProjectServiceImpl implements ProjectService{
             employeeProjectAssignedDetails.add(projectAssignedEmployees);
             employeeProjectAssignedDetails.add(allEmployeesId);
     	}  catch (EmployeeManagementException e) {
-            throw new EmployeeManagementException("SomeThing Went Wrong Try Again!");
+            throw new EmployeeManagementException
+                    ("SomeThing Went Wrong Try Again!");
         }
         return employeeProjectAssignedDetails;
     }

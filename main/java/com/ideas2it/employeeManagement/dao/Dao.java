@@ -75,8 +75,9 @@ public interface Dao {
      * @param employeeId  For checking whether already we have or not.
      *
      * @return true when Employee ID already Registered or return false.
+     * @throws EmployeeManagementException 
      */  
-    public boolean checkEmployeeIdExists(int employeeId);
+    public boolean checkEmployeeIdExists(int employeeId) throws EmployeeManagementException;
 
     /**
 	 * used to close the session 

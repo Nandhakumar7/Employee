@@ -51,8 +51,9 @@ public interface ProjectService {
      * @param projectId  For checking whether already we have or not.
      *
      * @return true when Employee ID already Registered or return false.
+     * @throws EmployeeManagementException 
      */
-    public boolean checkProjectIdExists(int projectId);
+    public boolean checkProjectIdExists(int projectId) throws EmployeeManagementException;
  
     /**
      * project Details are get from user and,
@@ -67,7 +68,7 @@ public interface ProjectService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public boolean updateProject(int projectId, String projectName,
+    public void updateProject(int projectId, String projectName,
              String managerName, String department, int timePeriod) throws EmployeeManagementException;
 	
     /**
@@ -80,7 +81,7 @@ public interface ProjectService {
      * @return isAssigned return true when sucessfully assigned or return false
      * @throws EmployeeManagementException 
      */
-    public boolean assignProject(int projectId, List<Integer> employeesId) throws EmployeeManagementException;
+    public void assignProject(int projectId, List<Integer> employeesId) throws EmployeeManagementException;
 
     /**
      * projectId are get from user and,
@@ -91,7 +92,7 @@ public interface ProjectService {
      * @return isDeleted return true when sucessfully deleted or return false
      * @throws EmployeeManagementException 
      */
-    public boolean deleteOrRestoreProjectDetails(int projectId) throws EmployeeManagementException;
+    public void deleteOrRestoreProjectDetails(int projectId) throws EmployeeManagementException;
 	
     /**
      * EmployeeId get from user and,
@@ -100,8 +101,9 @@ public interface ProjectService {
      * @param employeeId  For checking whether already we have or not.
      *
      * @return true when Employee ID already Registered or return false.
+     * @throws EmployeeManagementException 
      */ 
-    public boolean checkEmployeeIdExists(int employeeId);
+    public boolean checkEmployeeIdExists(int employeeId) throws EmployeeManagementException;
 
     /**
      * projectId get from user and,

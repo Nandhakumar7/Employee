@@ -361,6 +361,8 @@ public class ProjectController extends HttpServlet {
             String message = "OPERATION SUCESSFULL!";
             sendMessage(message, request, response);	
     	} catch (EmployeeManagementException e) {
+    		System.out.println("i am controller");
+    		System.out.println(e.getMessage());
     	    sendMessage(e.getMessage(), request, response);	
     	}
     }

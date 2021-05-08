@@ -17,6 +17,7 @@ import com.ideas2it.projectManagement.model.Project;
 import com.ideas2it.projectManagement.service.ProjectService;
 import com.ideas2it.projectManagement.service.impl.ProjectServiceImpl;
 import com.ideas2it.employeeManagement.service.EmployeeService;
+import com.ideas2it.logger.EmployeeManagementLogger;
 
 /**
  * ServiceImplementation get Details from user,
@@ -105,7 +106,8 @@ public class EmployeeServiceImpl implements EmployeeService {
      * {@inheritDoc}
      */
     @Override
-    public boolean checkEmployeeIdExists(int employeeId) {
+    public boolean checkEmployeeIdExists(int employeeId)
+    		throws EmployeeManagementException {
         return(employeeDaoImpl.checkEmployeeIdExists(employeeId));
     }
     
@@ -113,7 +115,8 @@ public class EmployeeServiceImpl implements EmployeeService {
      * {@inheritDoc}
      */
     @Override
-    public List<List<String>> getAllEmployee(boolean isDeleted) throws EmployeeManagementException {
+    public List<List<String>> getAllEmployee(boolean isDeleted) 
+    		throws EmployeeManagementException {
         List<Employee> allEmployee = employeeDaoImpl.getAllEmployeeDetails(isDeleted);
         List<List<String>> employees = new LinkedList<List<String>>();
         for(Employee employee : allEmployee) {
@@ -159,8 +162,10 @@ public class EmployeeServiceImpl implements EmployeeService {
      * {@inheritDoc}
      */ 
     @Override
-    public boolean updateEmployee(int employeeId, String name, float salary,
+    public void updateEmployee(int employeeId, String name, float salary,
             String mobileNumber, Date dateOfBirth) throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	Employee employee =null;
     	try {
             employee = employeeDaoImpl.getEmployeeDetails(employeeId);
@@ -174,10 +179,11 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setMobileNumber(newMobileNumber);
             employee.setSalary(newSalary);
             employee.setDateOfBirth(newDateOfBirth);
+            employeeDaoImpl.updateEmployee(employee);
     	} catch(EmployeeManagementException e) {
+    		log.logError("fail to update Id is " + employeeId, e);
     	    throw new EmployeeManagementException("Employee Update Failure");	
     	}
-        return employeeDaoImpl.updateEmployee(employee);
     }
 
     /**
@@ -227,6 +233,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean deleteEmployeeAddress(int choosedAddress, int employeeId)
     		throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	try {
             boolean isDeleted = false;
             Employee employee
@@ -246,6 +254,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 return isDeleted;
             }
         } catch (EmployeeManagementException e) {
+        	log.logError("Fail to delete address employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Employee Address Delete Operation Failure");	
         }
     }
@@ -255,8 +264,10 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @throws EmployeeManagementException 
      */ 
     @Override
-    public boolean updateAsPrimaryAddress(int choosedAddress, int employeeId) 
+    public void updateAsPrimaryAddress(int choosedAddress, int employeeId) 
     		throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
 		Employee employee = null;
 		try {
             employee = employeeDaoImpl.getEmployeeDetails(employeeId);
@@ -272,10 +283,11 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
             employeeAddress.setAddressType("Primary");
             employee.setAddressList(addressList);
+            employeeDaoImpl.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
+        	log.logError("Fail to update as primary address employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Employee Primary AddressUpdate Failure");	
         }
-		return employeeDaoImpl.updateEmployee(employee);
     }
 	
     /**
@@ -283,9 +295,11 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @throws EmployeeManagementException 
      */
     @Override
-    public boolean updateAddress(int choosedAddress,int employeeId,
+    public void updateAddress(int choosedAddress,int employeeId,
             int doorNumber, String streetName, String district,
             String State, String Country, int pinCode) throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
         Employee employee = null;
         try {
             employee = employeeDaoImpl.getEmployeeDetails(employeeId);
@@ -299,10 +313,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 		    oldAddress.setCountry(Country);
 		    oldAddress.setPinCode(pinCode);
             employee.setAddressList(addressList);
+            employeeDaoImpl.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
+        	log.logError("Fail to update address employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Employee AddressUpdate Failure");	
         }
-        return employeeDaoImpl.updateEmployee(employee);
     }
     
     /**
@@ -331,7 +346,9 @@ public class EmployeeServiceImpl implements EmployeeService {
      * {@inheritDoc}
      */ 
     @Override
-    public boolean deleteOrRestoreEmployee(int employeeId) throws EmployeeManagementException {
+    public void deleteOrRestoreEmployee(int employeeId) throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
         Employee employee = null;
         try {
             employee = employeeDaoImpl.getEmployeeDetails(employeeId);
@@ -347,17 +364,19 @@ public class EmployeeServiceImpl implements EmployeeService {
                 address.setIsDeleted(isDeleted);
             }
             employee.setProjectList(null);
+            employeeDaoImpl.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
+        	log.logError("fail to delete or restore id is " + employeeId, e);
             throw new EmployeeManagementException("Employee Delete/Restore Failure");	
         }
-        return employeeDaoImpl.updateEmployee(employee);
     }
  
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 
      */ 
     @Override
-    public boolean checkProjectIdExists(int projectId) {
+    public boolean checkProjectIdExists(int projectId) 
+    		throws EmployeeManagementException {
        ProjectService projectService 
                = new ProjectServiceImpl();
         return projectService.checkProjectIdExists(projectId);
@@ -388,7 +407,9 @@ public class EmployeeServiceImpl implements EmployeeService {
      * {@inheritDoc} 
      */ 
     @Override
-    public boolean assignProject(int employeeId, List projectsId) throws EmployeeManagementException {
+    public void assignProject(int employeeId, List projectsId) throws EmployeeManagementException {
+    	EmployeeManagementLogger log 
+                = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	Employee employee;
     	try {
             ProjectService projectService = new ProjectServiceImpl();
@@ -396,10 +417,11 @@ public class EmployeeServiceImpl implements EmployeeService {
             List<Project> employeeProjects = employee.getProjectList();
             List<Project> projects = projectService.getProjectsForEmployee(projectsId);
             employee.setProjectList(projects);	
+            employeeDaoImpl.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
+        	log.logError("fail to assign project employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Project Assigning Failure..Try Again..");	
         }
-        return employeeDaoImpl.updateEmployee(employee);
     }
 
     /**

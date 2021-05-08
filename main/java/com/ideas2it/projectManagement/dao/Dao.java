@@ -56,8 +56,9 @@ public interface Dao {
      * @param projectId  For checking whether already we have or not.
      *
      * @return true when projectId  already Registered or return false.
+     * @throws EmployeeManagementException 
      */ 
-    public boolean checkProjectIdExists(int projectId);
+    public boolean checkProjectIdExists(int projectId) throws EmployeeManagementException;
 
     /**
      * get all project details from database and 

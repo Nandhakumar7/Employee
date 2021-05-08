@@ -7,4 +7,8 @@ public class EmployeeManagementException extends Exception {
 	public EmployeeManagementException(String message) {
 		super(message);
 	}
+	public EmployeeManagementException(String message, EmployeeManagementException e) {
+		super(message,e);
+		// TODO Auto-generated constructor stub
+	}
 }

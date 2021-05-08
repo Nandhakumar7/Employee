@@ -10,6 +10,7 @@ import com.ideas2it.sessionFactory.DataBaseConnection;
 import com.ideas2it.Exception.EmployeeManagementException;
 import com.ideas2it.employeeManagement.dao.Dao;
 import com.ideas2it.employeeManagement.model.Employee;
+import com.ideas2it.logger.EmployeeManagementLogger;
 
 /**
  * DaoImplementation get Details from user,
@@ -21,6 +22,8 @@ import com.ideas2it.employeeManagement.model.Employee;
 public class EmployeeDaoImpl implements Dao {
     private DataBaseConnection dataBaseConnection
             = DataBaseConnection.getInstance();
+    private EmployeeManagementLogger log 
+            = new EmployeeManagementLogger(EmployeeDaoImpl.class);
 
     /**
      * {@inheritDoc}
@@ -37,6 +40,7 @@ public class EmployeeDaoImpl implements Dao {
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
             session.getTransaction().rollback();
+            log.logError("Create Employee Fails Name is :" + employee.getName(), e);
             throw new EmployeeManagementException("Employee Add failure");
         } finally {
         	closeSeesion(session);
@@ -68,7 +72,6 @@ public class EmployeeDaoImpl implements Dao {
 	
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */
    @Override
     public Employee getEmployeeDetails(int employeeId) throws EmployeeManagementException {
@@ -81,6 +84,7 @@ public class EmployeeDaoImpl implements Dao {
             employee.getAddressList().size();
             employee.getProjectList().size();
         } catch(HibernateException e) { 
+        	log.logError("Get Details Failure Id is :" + employeeId, e);
             employee = null;
             throw new EmployeeManagementException("Failed to get Details..Try Again..");
         } finally {
@@ -105,6 +109,7 @@ public class EmployeeDaoImpl implements Dao {
         } catch(HibernateException e) {
             session.getTransaction().rollback();
             isAddressAdded = false;
+            log.logError("add Address Failed employeeId is" + employee.getId(), e);
             throw new EmployeeManagementException("Address Adding Failure");
         } finally {
         	closeSeesion(session);
@@ -128,6 +133,7 @@ public class EmployeeDaoImpl implements Dao {
             employees = query.list();
         } catch(HibernateException e) { 
             employees = null;
+            log.logError("Get All Details failed", e);
             throw new EmployeeManagementException("Failed to get Details..Try Again..");
         } finally {
         	closeSeesion(session);
@@ -137,9 +143,11 @@ public class EmployeeDaoImpl implements Dao {
  
     /**
      * {@inheritDoc}
+     * @throws EmployeeManagementException 
      */
     @Override	  
-    public boolean checkEmployeeIdExists(int employeeId) {
+    public boolean checkEmployeeIdExists(int employeeId) 
+    		throws EmployeeManagementException {
         Session session = null;
         boolean idExists = false;
 		try {
@@ -154,6 +162,7 @@ public class EmployeeDaoImpl implements Dao {
             }
         } catch(HibernateException e) { 
             idExists = true;
+            throw new EmployeeManagementException(e);
         } finally {
         	closeSeesion(session);
         }			

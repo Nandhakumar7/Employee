@@ -1,12 +1,14 @@
 package com.ideas2it.projectManagement.dao.impl;
 
 import java.util.List;
+
 import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
 import com.ideas2it.Exception.EmployeeManagementException;
+import com.ideas2it.logger.EmployeeManagementLogger;
 import com.ideas2it.projectManagement.dao.Dao;
 import com.ideas2it.projectManagement.model.Project;
 import com.ideas2it.sessionFactory.DataBaseConnection;
@@ -21,13 +23,15 @@ import com.ideas2it.sessionFactory.DataBaseConnection;
 public class ProjectDaoImpl implements Dao {
     private DataBaseConnection dataBaseConnection
             = DataBaseConnection.getInstance();
+    private EmployeeManagementLogger log 
+            = new EmployeeManagementLogger(ProjectDaoImpl.class);
 	
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException  
      */
     @Override
-    public int insertProjectDetails(Project project) throws EmployeeManagementException {
+    public int insertProjectDetails(Project project) 
+            throws EmployeeManagementException {
         int projectId = 0;
         Session session = null;
         try {
@@ -37,6 +41,8 @@ public class ProjectDaoImpl implements Dao {
             projectId = (int)session.save(project);
 		    session.getTransaction().commit();
         } catch(HibernateException e) {
+        	log.logError("failed to create Project Name: "
+                    + project.getProjectName(), e);
         	session.getTransaction().rollback();
         	throw new EmployeeManagementException("Project Add failure");
         } finally {
@@ -49,7 +55,8 @@ public class ProjectDaoImpl implements Dao {
      * {@inheritDoc}
      */
     @Override
-    public Project getProjectDetails(int projectId) throws EmployeeManagementException {
+    public Project getProjectDetails(int projectId) 
+    		throws EmployeeManagementException {
         Session session = null;
         Project project = null;
 		try {
@@ -59,6 +66,8 @@ public class ProjectDaoImpl implements Dao {
             project.getEmployeesList().size();
         } catch(HibernateException e) {
         	project = null;
+        	log.logError("Fail to get Details from database Id: "
+        	        + projectId, e);
         	throw new EmployeeManagementException("Fail To get Details.Try Again.");
         } finally {
             closeSeesion(session);
@@ -81,7 +90,8 @@ public class ProjectDaoImpl implements Dao {
 	 * @throws EmployeeManagementException 
      */
     @Override
-    public boolean updateProject(Project project) throws EmployeeManagementException {
+    public boolean updateProject(Project project) 
+    		throws EmployeeManagementException {
         boolean isUpdated = true;
         Session session = null;
         try {
@@ -104,7 +114,8 @@ public class ProjectDaoImpl implements Dao {
      * {@inheritDoc}
      */
     @Override	  
-    public boolean checkProjectIdExists(int projectId) {
+    public boolean checkProjectIdExists(int projectId)
+    	    throws EmployeeManagementException {
         Session session = null;
         boolean idExists = false;
 		try {
@@ -115,12 +126,12 @@ public class ProjectDaoImpl implements Dao {
             Query query = session.createQuery(selectQuery);
             query.setParameter("id", projectId);
             List<Project> projects = query.list();
-            System.out.println(projects);
             if (0 == projects.size()) {
                 idExists = true;
 			   }
-        } catch(HibernateException e) {			
-            idExists = true;
+        } catch(HibernateException e) {
+        	throw new EmployeeManagementException
+        	        ("Failed to check Id please try again");
         } finally {
         	closeSeesion(session);
         }			
@@ -129,10 +140,10 @@ public class ProjectDaoImpl implements Dao {
 	
     /**
      * {@inheritDoc}
-     * @throws EmployeeManagementException 
      */ 
 	@Override
-    public List<Project> getAllProject(boolean isDeleted) throws EmployeeManagementException {
+    public List<Project> getAllProject(boolean isDeleted) 
+    		throws EmployeeManagementException {
         Session session = null;
         List<Project> projects = null;
 		try {
@@ -144,6 +155,7 @@ public class ProjectDaoImpl implements Dao {
             projects = query.list();
         } catch(HibernateException e) { 
             projects = null;
+            log.logError("Fail to get all Details", e);
             throw new EmployeeManagementException("Fail To get Details.Try Again.");
         } finally {
         	closeSeesion(session);
