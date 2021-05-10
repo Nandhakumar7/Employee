@@ -3,59 +3,61 @@ package com.ideas2it.logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class EmployeeManagementLogger {
-	
-private Logger logger;
+/**
+ * EmployeeManagementLogger is used for log the 
+ * activities and errors future use and reference.
+ *
+ * @version  1.0 05-05-2021.
+ * @author   Nandhakumar.K
+ */
+public class EmployeeManagementLogger {	
+    private Logger logger;
 	
 	public EmployeeManagementLogger(Class<?> className) {
-		System.out.println("hiiall");
-		System.out.println(className);
 		logger = LogManager.getLogger(className);
 	}
 	
 	/**
-	 * logging Information getting from info logs it into EmployeeManagementLogs
+	 * log the information in logs
 	 * 
-	 * @param info
+	 * @param info  information to log.   
 	 */
-	public void logInfo(Object info) {
-		
+	public void logInfo(Object info) {	
 		logger.info(info);
 	}
 	
 	/**
-	 *  logging Error getting from error logs it into EmployeeManagementLogs
+	 * log the errors in logs.
 	 * 
-	 * @param error
+	 * @param error   Error for logging  
+	 * @param message  it contains error details.
 	 */
 	public void logError(String messsage, Object error) {
-		System.out.println(messsage);
-		System.out.println(error);
 		logger.error(messsage, error);
 	}
 	
 	/**
-	 * logging Warning getting from warning and logs it into EmployeeManagementLogs
+	 * log the warning in logs.
 	 * 
-	 * @param warning
+	 * @param warning   to log warning 
 	 */
 	public void logWarning(Object warning) {
 		logger.warn(warning);
 	}
 	
 	/**
-	 * logging Fatal getting from fatal and logs it into EmployeeManagementLogs
+	 * log the fatal in logs.
 	 * 
-	 * @param fatal
+	 * @param fatal   to log Fatal.
 	 */
 	public void logFatal(Object fatal) {
 		logger.fatal(fatal);
 	}
     
 	/**
-	 * Logging Debug getting from debug and logs it into EmployeeManagementLogs
+	 * log the debug in logs.
 	 * 
-	 * @param debug
+	 * @param debug   debug information to log.
 	 */
 	public void logDebug(Object debug) {
 		logger.debug(debug);

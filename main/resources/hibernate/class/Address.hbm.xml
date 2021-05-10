@@ -4,7 +4,7 @@
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
 
 <hibernate-mapping>
-     <class name = "com.ideas2it.employeeManagement.model.Address" table ="address">
+     <class name = "com.ideas2it.employeeManagementSystem.employeeManagement.model.Address" table ="address">
       <id name = "Id" type = "int" column = "Id">
          <generator class="increment"/>
       </id>
@@ -17,7 +17,7 @@
       <property name = "pinCode" column = "pincode" type = "int"/>
       <property name = "addressType" column = "address_type" type = "string"/>
       <property name = "isDeleted" column = "is_deleted" type = "boolean"/>
-	 <many-to-one name = "employee" class = "com.ideas2it.employeeManagement.model.Employee" column = "employee_id"/>
+	 <many-to-one name = "employee" class = "com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee" column = "employee_id"/>
      
 	   </class>
 </hibernate-mapping>
