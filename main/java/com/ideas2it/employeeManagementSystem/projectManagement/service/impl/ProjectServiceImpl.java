@@ -29,11 +29,7 @@ public class ProjectServiceImpl implements ProjectService{
      * @throws Exception 
      */
     @Override
-    public int addProject(String projectName,
-            String projectManager, String department,
-            int timePeriod) throws EmployeeManagementException{
-        Project project = new Project (projectName, 
-     	        projectManager, department, timePeriod);
+    public int addProject(Project project) throws EmployeeManagementException{
         int projectId = projectDaoImpl.insertProjectDetails(project);	
         return projectId;
     }
@@ -42,29 +38,10 @@ public class ProjectServiceImpl implements ProjectService{
      * {@inheritDoc}
      */
     @Override
-    public List<String> getProjectDetails(int projectId) 
+    public Project getProjectDetails(int projectId) 
             throws EmployeeManagementException {
         Project project = projectDaoImpl.getProjectDetails(projectId);
-        List<String> projectDetails = new LinkedList<String>();
-        List<Employee> employees = new ArrayList<Employee>();
-        employees = project.getEmployeesList();
-        Integer id = project.getId();
-        Integer timePeriod = project.getTimePeriod();
-        projectDetails.add(id.toString());
-        projectDetails.add(project.getProjectName());
-        projectDetails.add(project.getManagerName());
-        projectDetails.add(project.getDepartment());
-        projectDetails.add(timePeriod.toString());
-        if(null != employees) {
-            for(Employee employee : employees) {	
-                Integer employeeId = employee.getId();
-                projectDetails.add(employeeId.toString());
-                projectDetails.add(employee.getName());
-            } 	
-        } else {
-            projectDetails.add("\n" + "NO Employee Assigned ");
-        }
-        return projectDetails;
+        return project;
     }
     
     /**
@@ -80,48 +57,37 @@ public class ProjectServiceImpl implements ProjectService{
      * {@inheritDoc}
      */ 
 	@Override
-    public List<List<String>> getProjects(boolean isDeleted) 
+    public List<Project> getProjects(boolean isDeleted) 
             throws EmployeeManagementException {
         List<Project> allProject = projectDaoImpl.getAllProject(isDeleted);
-        List<List<String>> projects = new LinkedList<List<String>>();
-        for(Project project : allProject) {
-        	List<String> projectDetails = new LinkedList<String>();
-        	projectDetails.add(String.valueOf(project.getId())); 
-        	projectDetails.add(project.getProjectName());
-        	projectDetails.add(project.getManagerName());
-        	projectDetails.add(project.getDepartment());
-        	projectDetails.add(String.valueOf(project.getTimePeriod())); 
-        	projects.add(projectDetails);
-        }
-        return projects;
+        return allProject;
     }
 
     /**
      * {@inheritDoc}
      */ 
     @Override
-    public void updateProject(int projectId, String projectName, String managerName,
-            String department, int timePeriod) throws EmployeeManagementException {
+    public void updateProject(Project project) throws EmployeeManagementException {
     	EmployeeManagementLogger log 
                 = new EmployeeManagementLogger(ProjectServiceImpl.class);
-    	Project project = null;
+    	Project oldProject = null;
     	try {
-            project = projectDaoImpl.getProjectDetails(projectId);
+    		oldProject = projectDaoImpl.getProjectDetails(project.getId());
             String newProjectName
-                    = (null == projectName) ? project.getProjectName() : projectName;
+                    = (null == project.getProjectName()) ? project.getProjectName() : project.getProjectName();
             String newManagerName
-                    = (null == managerName) ? project.getManagerName() : managerName;
+                    = (null == project.getManagerName()) ? project.getManagerName() : project.getManagerName();
             String newDepartment
-                    = (null == department) ? project.getDepartment() : department;
+                    = (null == project.getDepartment()) ? project.getDepartment() : project.getDepartment();
             int newTimePeriod
-                    = (0 == timePeriod) ? project.getTimePeriod() : timePeriod;
-            project.setProjectName(newProjectName);
-            project.setManagerName(newManagerName);
-            project.setDepartment(newDepartment);
-            project.setTimePeriod(newTimePeriod);
-            projectDaoImpl.updateProject(project);
+                    = (0 == project.getTimePeriod()) ? project.getTimePeriod() : project.getTimePeriod();
+            oldProject.setProjectName(newProjectName);
+            oldProject.setManagerName(newManagerName);
+            oldProject.setDepartment(newDepartment);
+            oldProject.setTimePeriod(newTimePeriod);
+            projectDaoImpl.updateProject(oldProject);
     	} catch (EmployeeManagementException e) {
-    		log.logError("Failed to update Project Id is" + projectId, e);
+    		log.logError("Failed to update Project Id is" + project.getId(), e);
         	throw new EmployeeManagementException("Employee Update Failure");
     	}
     }
@@ -210,35 +176,30 @@ public class ProjectServiceImpl implements ProjectService{
      * @throws EmployeeManagementException 
      */ 
     @Override
-    public List<List<String>> getProjectEmployees(int projectId) 
+    public List<List> getProjectEmployees(int projectId) 
             throws EmployeeManagementException {
-    	List<List<String>> employeeProjectAssignedDetails = new LinkedList<List<String>>();
+    	List<List> employeeProjectAssignedDetails = new LinkedList<List>();
     	try { 
     	    EmployeeService employeeService = new EmployeeServiceImpl();
             Project project = projectDaoImpl.getProjectDetails(projectId);
-            List<String> projectAssignedEmployees = new LinkedList<String>();
             List<Employee> employees = project.getEmployeesList();
-            List<String> allEmployeesId = new ArrayList<String>();
             List<Integer> assignedEmployeesId = new ArrayList<Integer>();
-            List<List<String>> allEmployees = employeeService.getAllEmployee(false); 
+            List<Employee> allEmployees = employeeService.getAllEmployees(false); 
+            List<Employee> unAssignedEmployees = new ArrayList<Employee>();
             if (null == employees) {
-                projectAssignedEmployees = null;
+            	assignedEmployeesId = null;
             } else {
                 for(Employee employee : employees) {
-                    projectAssignedEmployees.add(String.valueOf(employee.getId()));
-                    projectAssignedEmployees.add(employee.getName());
                     assignedEmployeesId.add(employee.getId());
                 }
             }
-            for(List<String> employee : allEmployees) {
-        	    int employeeId = Integer.parseInt(employee.get(0));
-        	    if(!(assignedEmployeesId.contains(employeeId))) {
-        		    allEmployeesId.add(employee.get(0));
-        		    allEmployeesId.add(employee.get(1));
+            for(Employee employee : allEmployees) {
+        	    if(!(assignedEmployeesId.contains(employee.getId()))) {
+        	    	unAssignedEmployees.add(employee); 
         	    }
             }
-            employeeProjectAssignedDetails.add(projectAssignedEmployees);
-            employeeProjectAssignedDetails.add(allEmployeesId);
+            employeeProjectAssignedDetails.add(employees);
+            employeeProjectAssignedDetails.add(unAssignedEmployees);
     	}  catch (EmployeeManagementException e) {
             throw new EmployeeManagementException
                     ("SomeThing Went Wrong Try Again!");

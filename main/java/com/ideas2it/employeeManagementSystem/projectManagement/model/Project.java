@@ -18,7 +18,6 @@ public class Project {
     private int timePeriod;
     private List<Employee> employeesList;
     private boolean isDeleted; 
-	
     public Project(int id, String projectName, String managerName, 
             String department, int timePeriod, List<Employee> employeesList,
             boolean isDeleted) {

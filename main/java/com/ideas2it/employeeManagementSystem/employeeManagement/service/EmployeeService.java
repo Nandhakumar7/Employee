@@ -261,4 +261,6 @@ public interface EmployeeService {
      * @return boolean  true when given address primary or return false.
      */
     public boolean checkAddressPrimaryOrNot(Address choosedAddress);
+
+	public List<Employee> getAllEmployees(boolean b) throws EmployeeManagementException;
 }

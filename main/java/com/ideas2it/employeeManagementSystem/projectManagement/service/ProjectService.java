@@ -18,19 +18,13 @@ public interface ProjectService {
     /**
      * project Details are get from user and,
      * insert details to database.
-     *
-     * @param projectId   Id is for unique for specific prject.       
-     * @param managerName  manager of the project.
-     * @param projectName  name of the project.
-     * @param department  department of the project.
-     * @param timePeriod   timeperiod for completing project.
+     * 
+     * @param project   contains Project details to create
      *
      * @return isProjectAdded true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public int addProject(String projectName, 
-            String projectManager, String department,
-            int timePeriod) throws EmployeeManagementException;
+    public int addProject(Project project) throws EmployeeManagementException;
 			
     /**
      * Here ProjectID  get from user and,
@@ -42,7 +36,7 @@ public interface ProjectService {
      * @return project   project Details for user view. 
      * @throws EmployeeManagementException 
      */
-    public List<String> getProjectDetails(int projectId) throws EmployeeManagementException;
+    public Project getProjectDetails(int projectId) throws EmployeeManagementException;
     
     /**
      * projectId get from user and,
@@ -59,17 +53,12 @@ public interface ProjectService {
      * project Details are get from user and,
      * update project details to database.
      *
-     * @param projectId   Id is for one which Details need to Change.       
-     * @param managerName  new managerName for change.
-     * @param projectName   new name for change.
-     * @param department  new department for change.
-     * @param timePeriod   new DateOfBirth for change.
+     * @param project   contains details to update.
      *
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public void updateProject(int projectId, String projectName,
-             String managerName, String department, int timePeriod) throws EmployeeManagementException;
+    public void updateProject(Project project) throws EmployeeManagementException;
 	
     /**
      * projectId and employeeId are get from user and,
@@ -114,7 +103,7 @@ public interface ProjectService {
      * @return List  It contains list of employees.
      * @throws EmployeeManagementException 
      */
-    public List<List<String>> getProjectEmployees(int projectId) throws EmployeeManagementException;
+    public List<List> getProjectEmployees(int projectId) throws EmployeeManagementException;
 
     /**
      * Get allProject details from database and send for user view.
@@ -122,7 +111,7 @@ public interface ProjectService {
      * @return allProject  list contains all project.
      * @throws EmployeeManagementException 
      */
-    public List<List<String>> getProjects(boolean isDeleted) throws EmployeeManagementException;
+    public List<Project> getProjects(boolean isDeleted) throws EmployeeManagementException;
 
     /**
      * projectId get from user and,

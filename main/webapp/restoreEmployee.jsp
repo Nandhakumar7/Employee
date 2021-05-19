@@ -22,7 +22,7 @@
     <br><br>
     <% List<List<String>> employees
     = (List<List<String>>)request.getAttribute("allEmployees"); %>
-        <h1 style="text-align: center;background-color: white;">Projects</h1>
+        <h1 style="text-align: center;background-color: white;">DeletedEmployees</h1>
         <table align= "center" style="width:70%;">
             <tr>
                 <th>Id</th>

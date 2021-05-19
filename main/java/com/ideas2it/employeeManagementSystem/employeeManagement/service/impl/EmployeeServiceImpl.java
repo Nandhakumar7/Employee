@@ -26,7 +26,7 @@ import com.ideas2it.logger.EmployeeManagementLogger;
  * @author   Nandhakumar.
  */
 public class EmployeeServiceImpl implements EmployeeService {
-    private EmployeeDao employeeDaoImpl = new EmployeeDaoImpl();
+    private EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
 
     /**
      * {@inheritDoc}
@@ -131,6 +131,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         return employees;
     }
+    public List<Employee> getAllEmployees(boolean isDeleted) throws EmployeeManagementException {
+    	List<Employee> allEmployee = employeeDaoImpl.getAllEmployeeDetails(isDeleted);
+		return allEmployee;
+    	
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -439,7 +445,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             List<String> employeeAssignedProjects = new LinkedList<String>();
             List<Project> projects = employee.getProjectList();
             List<List<String>> allProjects = new LinkedList<List<String>>();
-            allProjects = projectService.getProjects(false);
+            //allProjects = projectService.getProjects(false);
             List<String> allProjectsDetails = new ArrayList<String>();
             List<Integer> allProjectsId = new ArrayList<Integer>();
             if (null == projects) {
