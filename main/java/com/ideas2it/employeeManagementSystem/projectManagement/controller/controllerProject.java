@@ -42,7 +42,7 @@ public class controllerProject {
 	 * @return String viewPage name.
      */
     @RequestMapping("/addProject")    
-    public String showform(Model model){ 
+    public String showform(Model model) { 
         model.addAttribute("command", new Project());  
         return "addProject";   
     } 
@@ -189,7 +189,7 @@ public class controllerProject {
 	 * @return String viewPage name.
      */
     @RequestMapping("/projectHome")    
-    public String callProjectHome(){ 
+    public String callProjectHome() { 
         return "projectHomePage";   
     }
     
@@ -198,8 +198,8 @@ public class controllerProject {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/mainPage")    
-    public String callMainPage(){ 
+    @RequestMapping("/")    
+    public String callMain() { 
         return "index";   
     }
     
@@ -209,7 +209,7 @@ public class controllerProject {
 	 * @return String viewPage name.
      */
     @RequestMapping("/viewProjectPage")    
-    public String callviewProjectPage(){
+    public String callviewProjectPage() {
         return "view";   
     }
     
@@ -229,7 +229,7 @@ public class controllerProject {
 		    List<Integer> employeesId = new ArrayList<Integer>();
 		    int id = Integer.parseInt(projectId[0]);
 		    if(null != checkboxValue) {
-		        for(int i = 0;i < checkboxValue.length; i ++) {
+		        for(int i = 1; i < checkboxValue.length; i ++) {
 			        employeesId.add(Integer.parseInt(checkboxValue[i]));
 		        }
 		    }

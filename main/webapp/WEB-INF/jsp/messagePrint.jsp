@@ -21,7 +21,7 @@
         <th>${message}</th>
     </table>
     <br><br>
-    <a href = "Employee?action=callEmployeePage"><button class = "gfg">Employee</button></a><br><br>
+     <a href = "EmployeeHomePage"><button class = "gfg">Employee</button></a><br><br>
     <a href = "projectHome"><button class = "gfg">Project</button></a></a>
 </body>
 </html>

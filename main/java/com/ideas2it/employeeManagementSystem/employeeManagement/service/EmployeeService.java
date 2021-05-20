@@ -22,19 +22,11 @@ public interface EmployeeService {
      * Employee Details are get from user and,
      * add Employee details to Employees database.
      *
-     * @param employeeId    Specific Id for individual persons.  
-     * @param name          Name of employee need to add.
-     * @param salary        Salary of employee need to add.
-     * @param mobileNumber  MobileNumber of employee need to add.
-     * @param dateOfBirth   DateOfBirth of employee need to add.
-     * @param addresses     List of employee Addresses.
-     * @throws EmployeeManagementException 
+     * @param employeeId    details to create employee.
      *
      * @isEmployeeAdded  return true when added sucessfully or return false. 
      */
-    public int addEmployeeDetails(String name,
-            float salary, String mobileNumber, Date dateofbirth,
-            List<List<String>> addresses) throws EmployeeManagementException;
+    public int addEmployeeDetails(Employee employee) throws EmployeeManagementException;
 			
     /**
      * Employee Details are get from user and,
@@ -60,7 +52,7 @@ public interface EmployeeService {
      * @return String   Employee Details for user View. 
      * @throws EmployeeManagementException 
      */
-    public List<List<String>> getEmployeeDetails(int employeeId) throws EmployeeManagementException;
+    public Employee getEmployeeDetails(int employeeId) throws EmployeeManagementException;
 
     /**
      * EmployeeId get from user and,
@@ -72,14 +64,6 @@ public interface EmployeeService {
      * @throws EmployeeManagementException 
      */
     public boolean checkEmployeeIdExists(int employeeId) throws EmployeeManagementException;
-    
-    /**
-     * Get AllEmployees details from employeesMap and send for user view.
-     *
-     * @return allEmployees  list contains all employeeDetails.
-     * @throws EmployeeManagementException 
-     */
-    public List<List<String>> getAllEmployee(boolean isDeleted) throws EmployeeManagementException;
 
     /**
      * projectId get from user and,
@@ -126,8 +110,7 @@ public interface EmployeeService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */     
-    public void updateEmployee(int employeeId, String name, float salary,
-            String mobileNumber, Date dateOfBirth) throws EmployeeManagementException;
+    public void updateEmployee(Employee employee) throws EmployeeManagementException;
     
     /**
      * EmployeeID are get from user and,
@@ -137,7 +120,7 @@ public interface EmployeeService {
      * @return employeeAddress  It contains employee all Address.
      * @throws EmployeeManagementException 
      */
-    public List<String> getEmployeeAddress(int employeeId) throws EmployeeManagementException;
+    public Address getEmployeeAddress(int employeeId, int addressId) throws EmployeeManagementException;
 	
     /**
      * EmployeeID are get from user and,
@@ -174,9 +157,8 @@ public interface EmployeeService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public void updateAddress(int choosedAddress, int employeeId,
-            int doorNumber, String streetName, String district, String State,
-            String Country, int pinCode) throws EmployeeManagementException;
+    public void updateAddress(int choosedAddress, Address address,
+    		int employeeId) throws EmployeeManagementException;
 
     /**
      * Employee Details are get from user and,
@@ -194,9 +176,7 @@ public interface EmployeeService {
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public boolean addNewAddress(int employeeId,
-            int doorNumber, String streetName, String district, String State,
-            String Country, int pinCode) throws EmployeeManagementException;
+    public boolean addNewAddress(int employeeId, Address address) throws EmployeeManagementException;
 			
     /**
      * EmployeeID are get from user and,
@@ -231,7 +211,7 @@ public interface EmployeeService {
      * @return List  It contains list of projects assigned and un assigned.
      * @throws EmployeeManagementException 
      */
-    public List<List<String>> employeeProjects(int employeeId) throws EmployeeManagementException;
+    public List<List> employeeProjects(int employeeId) throws EmployeeManagementException;
 
     /**
      * employeeId get from user and,
@@ -262,5 +242,11 @@ public interface EmployeeService {
      */
     public boolean checkAddressPrimaryOrNot(Address choosedAddress);
 
+    /**
+     * Get AllEmployees details from employeesMap and send for user view.
+     *
+     * @return allEmployees  list contains all employeeDetails.
+     * @throws EmployeeManagementException 
+     */
 	public List<Employee> getAllEmployees(boolean b) throws EmployeeManagementException;
 }

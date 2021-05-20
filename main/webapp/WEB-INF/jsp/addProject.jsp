@@ -1,8 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<%@ page import="java.util.List"%>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>   
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>      
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +14,7 @@
 </head>
 <h1 style="text-align: center;background-color: white;">ProjectManagement</h1>
 <body style="background-color:lightblue;text-align:center">               
-       <form:form method="post" action="saveOrUpdate">    
+       <form:form method="post" action="saveOrUpdate" >    
        <table align= "center">  
          <tr>    
           <td><form:hidden path="id" /></td> 
@@ -39,7 +37,7 @@
          </tr>  
          <tr>    
           <td> </td>    
-          <td><input type="submit" value="save" /></td>    
+          <td><input type="submit"  value="save" /></td>    
          </tr>    
         </table>    
        </form:form>     

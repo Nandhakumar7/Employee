@@ -1,19 +1,21 @@
 package com.ideas2it.employeeManagementSystem.employeeManagement.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
-import com.ideas2it.exception.EmployeeManagementException;
-import com.ideas2it.employeeManagementSystem.employeeManagement.service.impl.EmployeeServiceImpl;
+import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
+import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
 import com.ideas2it.employeeManagementSystem.employeeManagement.service.EmployeeService;
+import com.ideas2it.employeeManagementSystem.employeeManagement.service.impl.EmployeeServiceImpl;
+import com.ideas2it.exception.EmployeeManagementException;
 
 /**
  * EmployeeController for doing CRUD operation.
@@ -21,554 +23,390 @@ import com.ideas2it.employeeManagementSystem.employeeManagement.service.Employee
  * @version  1.0 29-03-2021.
  * @author   Nandhakumar.
  */
-public class EmployeeController extends HttpServlet {
-    private EmployeeService employeeService 
-            = new EmployeeServiceImpl();
+@Controller    
+public class EmployeeController {  
+	EmployeeService employeeService = new EmployeeServiceImpl();
     
 	/**
-	 * receive action from user and send that  request to that specific method.
+	 * call Employee create Form.
 	 * 
-	 * @param request   it contains action to do operation.
-     * @param response  send response of the request to user.
+     * @param model   to send model form to create employee.
+     * 
+	 * @return String viewPage name.
      */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        String action = request.getParameter("action");
-		switch (action) {
-		    case "add":
-		        addEmployee(request, response);
-		    	break;
-		    case "view":
-		    	showEmployee(request, response);
-		    	break;
-		    case "updateEmployee":
-		    	updateEmployee(request, response);
-		    	break;
-		    case "updateAddress":
-		    	updateAddress(request, response);
-		    	break;
-		    case "addressAddNew":
-		    	addNewAddress(request, response);
-		    	break;
-		    case "assignAndUnassign":
-		    	assignAndUnassignProjects(request, response);
-		    	break;
-		    default:
-		        break;
-	    }
-	}
-	
-	/**
-	 * do get method used to do crud operation.
-	 * 
-	 * @param request   it contains action to do operation.
-     * @param response  send response of the request to user.
-     */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        String action = request.getParameter("action");
-		switch (action) {
-	        case "showAll":
-		        getAllEmployees(request, response);
-			    break;
-	        case "callEmployeePage":
-			    callEmployeePage(request, response);
-			    break;
-			case "showAddressEdit":
-			    showAddressToEdit(request, response);
-			    break;
-			case "deleteOrRestore":
-				deleteOrRestoreEmployee(request, response);
-			    break;
-			case "deleteAddress":
-			    deleteAddress(request, response);
-			    break;
-			case "updateAsPrimary":
-			    updateAsPrimary(request, response);
-			    break;
-			case "newAddressFormCall":
-			    newAddressFormCall(request, response);
-		    	break;
-			case "sendEditEmployeeDetails":
-			    sendEditEmployeeDetails(request, response);
-			    break;
-			case "getEmployeeProjects":
-			    getAllEmployeeProjects(request, response);
-		    	break;
-			case "callViewPage":
-		    	callViewEmployeePage(request, response);
-		    	break;
-		    case "callAddEmployeeForm":
-		    	addEmployeeFormCall(request, response);
-		    	break;
-		    case "callMainPage":
-		        callMainPage(request, response);
-		        break;
-			default:
-			    break;
-        }	     
-	}
-	
-	/**
-     * call employeeHome page for doing Employee crud operation.
-     *
-     * @param request   it contains request of employeePage
-     * @param response  send response of the request to user.
-     */
-    private void callEmployeePage
-            (HttpServletRequest request, HttpServletResponse response) {
-    	try {
-    		response.sendRedirect("employeeHomePage.jsp"); 
-    	} catch (IOException  e) {
-    		String message = "Fail To LoadPage..Try Again.."; 
-    		sendMessage(message, request, response);	
-    	}
-	}
+    @RequestMapping("/addEmployee")    
+    public String showform(Model model) { 
+        model.addAttribute("command", new Employee());  
+        return "addEmployee";   
+    } 
     
-	/**
-     * call addPROJECT fORM page for CREATE NEW PROJECT.
-     *
-     * @param request   it contains request of newForm
-     * @param response  send response of the request to user.
-     */
-	private void addEmployeeFormCall
-	        (HttpServletRequest request, HttpServletResponse response) {
-	    try {
-    		response.sendRedirect("addEmployee.jsp"); 
-    	} catch (IOException  e) {
-    		String message = "Fail To LoadPage..Try Again.."; 
-    		sendMessage(message, request, response);	
-    	}
-	}
-
-	/**
-     * call homePage fORM page for choose employee or project operation.
-     *
-     * @param request   it contains request of mainPage
-     * @param response  send response of the request to user.
-     */
-	private void callMainPage
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-    		response.sendRedirect("mainPage.html"); 
-    	} catch (IOException  e) {
-    		String message = "Fail To LoadPage..Try Again.."; 
-    		sendMessage(message, request, response);	
-    	}
-	}
-        
-	/**
-     * call viewProject  page for user view project details.
-     *
-     * @param request   it contains request of view page.
-     * @param response  send response of the request to user.
-     */
-	private void callViewEmployeePage
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-			response.sendRedirect("showEmployee.jsp"); 
-    	} catch (IOException  e) {
-    		String message = "Fail To LoadPage..Try Again.."; 
-    		sendMessage(message, request, response);	
-    	}
-	}
-
     /**
-     * Employee Id and projects id  get from user and,
-     * assign or unassign project to employee.
-     *
-     * @param request   it contains projectId and employeeId.
-     * @param response  send response of the request to user.
+	 * call editEmployeeForm.
+	 * 
+     * @param model   to send model form to update employee.
+     * 
+	 * @return String viewPage name.
      */
-	private void assignAndUnassignProjects
-	        (HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping("/editEmployeeForm")    
+    public ModelAndView showEditEmployeeForm(@RequestParam int id) { 
+    	ModelAndView modelAndView = new ModelAndView(); 
+    	try {
+			Employee employee = employeeService.getEmployeeDetails(id);
+			modelAndView.addObject("command", employee);
+			modelAndView.setViewName("editEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+		    modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;   
+    }
+    
+	/**
+	 * call addAddress create Form.
+	 * 
+     * @param model   to send model form to create Address
+     * 
+	 * @return String viewPage name.
+     */
+    @RequestMapping("/addAddress")    
+    public ModelAndView addAddressForm(@RequestParam int id) {
+    	ModelAndView modelAndView = new ModelAndView(); 
+    	modelAndView.addObject("command", new Address()); 
+    	modelAndView.addObject("employeeId", id);
+    	modelAndView.addObject("choosedAddress", 0);
+    	modelAndView.setViewName("editAddress");
+        return modelAndView;   
+    }
+    
+    /**
+	 * update employeedetails.
+	 * 
+     * @param model   to send model form to edit Address
+     * 
+	 * @return String viewPage name.
+     */
+    @RequestMapping("/updateEmployee")    
+    public ModelAndView updateEmployee(@ModelAttribute Employee updatedEmployee) {
+    	ModelAndView modelAndView = new ModelAndView();
+    	try {
+    		employeeService.updateEmployee(updatedEmployee);
+    		Employee employee = employeeService.getEmployeeDetails(updatedEmployee.getId());
+			modelAndView.addObject("employee", employee);
+	    	modelAndView.setViewName("showEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+		    modelAndView.setViewName("messagePrint");
+		} 
+        return modelAndView;   
+    }
+    
+    /**
+	 * call editAddress Form.
+	 * 
+     * @param model   to send model form to edit Address
+     * 
+	 * @return String viewPage name.
+     */
+    @RequestMapping("/editAddress")    
+    public ModelAndView editAddress(@RequestParam("choosedAddress")int addressCount, 
+    		@RequestParam("id")int id, @RequestParam("choosedAddressId")int addressId ) {
+    	ModelAndView modelAndView = new ModelAndView();
+    	try {
+			modelAndView.addObject("command", employeeService.getEmployeeAddress(id, addressId));
+			modelAndView.addObject("employeeId", id);
+			modelAndView.addObject("choosedAddress", addressCount);
+	    	modelAndView.setViewName("editAddress");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+		    modelAndView.setViewName("messagePrint");
+		} 
+        return modelAndView;   
+    }
+    
+    /**
+	 * add new address to employee
+	 * 
+     * @param address   address details to add
+     * @param id     to add address to specific employee
+     * 
+	 * @return ModelAndView contains details to user view.
+     */
+    @RequestMapping("/saveAddress")    
+    public ModelAndView saveNewAddress(@RequestParam("employeeId") int id,
+    		@ModelAttribute Address address, @RequestParam("choosedAddress") 
+            int count) {
+    	ModelAndView modelAndView = new ModelAndView(); 
+    	try {
+    		if(0 == address.getId()) {
+			    employeeService.addNewAddress(id, address);
+    		} else {
+    			employeeService.updateAddress(count, address, id);
+    		}
+    		Employee employee = employeeService.getEmployeeDetails(id);
+    		modelAndView.addObject("employee", employee);
+    	    modelAndView.setViewName("showEmployee");
+    	} catch (EmployeeManagementException e) {
+		    modelAndView.addObject("message", e.getMessage());
+		    modelAndView.setViewName("messagePrint");
+    	}
+        return modelAndView;  
+    }
+    
+	/**
+	 * send allEmployee Details to user View
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+	@RequestMapping("/showALLEmployee")   
+    public ModelAndView showAllProject() { 
+    	List<Employee> allEmployees = null;
+    	ModelAndView modelAndView = new ModelAndView(); 
 		try {
-            String projectId[] = (request.getParameterValues("projectsId"));
-		    List<Integer> projectsId = new ArrayList<Integer>();
-		    int id = Integer.parseInt(request.getParameter("employeeId"));
-		    if(null != projectId) {
-		        for(int i = 0;i< projectId.length; i ++) {
-		            projectsId.add(Integer.parseInt(projectId[i]));
+			allEmployees = employeeService.getAllEmployees(false);
+			modelAndView.addObject("allEmployees", allEmployees);
+			modelAndView.addObject("message", "DeleteEmployee");
+			modelAndView.setViewName("restoreEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;
+    }
+    
+	/**
+	 * to delete Employee address from database
+	 * 
+     * @param choosedAddress  to delete specific employee address  Details.
+     * @param id     to delete specific employee address.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/DeleteAddress")    
+    public ModelAndView deleteEmployeeAddress(@RequestParam("employeeId") int employeeId,
+    		@RequestParam("choosedAddress") int choosedAddress) {
+    	ModelAndView modelAndView = new ModelAndView();
+		try {
+			employeeService.deleteEmployeeAddress(choosedAddress, employeeId);
+	    	Employee employee = employeeService.getEmployeeDetails(employeeId);
+	    	modelAndView.addObject("employee", employee);
+	    	modelAndView.setViewName("showEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;  
+    }
+    
+    /**
+	 * to update address as primary 
+	 * 
+     * @param choosedAddress  to update specific employee address  Details.
+     * @param id     to update specific employee address.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/updateAsPrimaryAddress")    
+    public ModelAndView updateAddressAsPrimary(@RequestParam("id") int employeeId,
+    		@RequestParam("choosedAddress") int choosedAddress) {
+    	ModelAndView modelAndView = new ModelAndView();
+		try {
+			employeeService.updateAsPrimaryAddress(choosedAddress, employeeId);
+	    	Employee employee = employeeService.getEmployeeDetails(employeeId);
+	    	modelAndView.addObject("employee", employee);
+	    	modelAndView.setViewName("showEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;  
+    }
+    
+    
+	/**
+	 * get Specific Employee details and send to userView.
+	 * 
+     * @param id   to get specific Employee details.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/showEmployee")    
+    public ModelAndView getProject(@RequestParam("id") int id) {
+    	Employee employee;
+    	ModelAndView modelAndView = new ModelAndView(); 
+		try {
+			if( !(employeeService.checkEmployeeIdExists(id))) {
+			    employee = employeeService.getEmployeeDetails(id);
+			    modelAndView.addObject("employee", employee);
+			    modelAndView.setViewName("showEmployee");
+			} else {
+				modelAndView.addObject("message", "Employee Id NotExists");
+				modelAndView.setViewName("messagePrint");
+			}
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;   
+    }
+    
+	/**
+	 * Delete specific Employee from database.
+	 * 
+     * @param id  to delete specific Employee.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/DeleteEmployee" )    
+    public ModelAndView DeleteProject(@RequestParam("id") int id) { 
+    	ModelAndView modelAndView = new ModelAndView(); 
+    	String message = null;
+		try {
+			employeeService.deleteOrRestoreEmployee(id);
+			message = "DELETED SUCESSFULLY";
+			modelAndView.addObject("message", message);
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+		}
+		modelAndView.setViewName("messagePrint");
+		return modelAndView;
+    }
+    
+	/**
+	 * restore specific Employee from database.
+	 * 
+     * @param id  to restore specific employee.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/restoreEmployee" )    
+    public ModelAndView restoreProject(@RequestParam("id") int id) { 
+    	ModelAndView modelAndView = new ModelAndView(); 
+    	String message = null;
+		try {
+			employeeService.deleteOrRestoreEmployee(id);
+			message = "Restored SUCESSFULLY";
+			modelAndView.addObject("message", message);
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+		}
+		modelAndView.setViewName("messagePrint");
+        return modelAndView;
+    }
+    
+	/**
+	 * get All deleted Employees from database and send
+	 * to userView.
+	 * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/showAllDeletedEmployees")    
+    public ModelAndView showAllDeletedProject() { 
+    	List<Employee> allEmployees = null;
+    	ModelAndView modelAndView = new ModelAndView(); 
+		try {
+			allEmployees = employeeService.getAllEmployees(true);
+			modelAndView.addObject("allEmployees", allEmployees);
+			modelAndView.addObject("message", "restoreEmployee");
+			modelAndView.setViewName("restoreEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;
+    }
+    
+	/**
+	 * call EmployeeHomePage.
+	 * 
+	 * @return String viewPage name.
+     */
+    @RequestMapping("/EmployeeHomePage")    
+    public String callProjectHome() { 
+        return "employeeHomePage";   
+    }
+    
+    /**
+	 * call showEmployeePage.
+     * 
+	 * @return String viewPage name.
+     */
+    @RequestMapping("/showEmployeePage")    
+    public String callviewProjectPage() {
+        return "showEmployee";   
+    }
+    
+	/**
+	 * Assign Employees to Projects.
+	 * 
+     * @param employeeId  Employees Id to assign project.
+     * @param projectsId   to assign projects to employee.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
+     */
+    @RequestMapping("/assignProject")    
+    public ModelAndView assignEmployee(@RequestParam("projectId")String[] checkboxValue,
+    		@RequestParam("employeeId")String[] employeeId) { 
+    	ModelAndView modelAndView = new ModelAndView();
+    	try {
+		    List<Integer> employeesId = new ArrayList<Integer>();
+		    int id = Integer.parseInt(employeeId[0]);
+		    if(null != checkboxValue) {
+		        for(int i = 1; i < checkboxValue.length; i ++) {
+			        employeesId.add(Integer.parseInt(checkboxValue[i]));
 		        }
 		    }
-		    employeeService.assignProject(id, projectsId);
-		    showEmployee(request, response);
+		    employeeService.assignProject(id,employeesId);
+		    Employee employee = employeeService.getEmployeeDetails(id);
+			modelAndView.addObject("employee", employee);
+			modelAndView.setViewName("showEmployee");
 		} catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	}
-	}
-
-    /**
-     * Employee Id and projects id  get from user and,
-     * get assign or unassigned projects for  employee.
-     *
-     * @param request   it contains  employeeId to get projects.
-     * @param response  send response of the request to user.
-     */
-	private void getAllEmployeeProjects
-	        (HttpServletRequest request, HttpServletResponse response) {
-	    try {
-		    int id = Integer.parseInt(request.getParameter("id"));
-		    List<List<String>> projectEmployeesList
-		            = employeeService.employeeProjects(id);
-		    List<List<String>> employee = employeeService.getEmployeeDetails(id);
-   	        request.setAttribute("view", employee);
-		    request.setAttribute("projectEmployees", projectEmployeesList);
-            RequestDispatcher dispatcher
-                    = request.getRequestDispatcher("showEmployee.jsp");
-            dispatcher.forward(request, response);
-	    } catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	} catch (ServletException | IOException  e) {
-    		String message = "Fail To Display details please try again"; 
-    		sendMessage(message, request, response);	
-    	}
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;
     }
-
-    /**
-     * used to call employee edit form.
-     *
-     * @param request   it contains  employeeId to get details.
-     * @param response  send response of the request to user.
-     */
-	private void sendEditEmployeeDetails
-	        (HttpServletRequest request, HttpServletResponse response) {
-	    try {
-	        String employeeEdit = "true";
-			request.setAttribute("editEnable", employeeEdit);
-			RequestDispatcher dispatcher
-		            = request.getRequestDispatcher("editEmployee.jsp");
-		    dispatcher.forward(request, response);	
-	    } catch (ServletException | IOException  e) {
-    		String message = "Fail To Display Employee details please try again"; 
-    		sendMessage(message, request, response);	
-    	}
-    }
-
-    /**
-     * Employee Id and addressDetails  get from user and,
-     * add to database.
-     *
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     */
-	private void addNewAddress
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-            employeeService.addNewAddress
-                    (Integer.parseInt(request.getParameter("employeeId")),
-	                Integer.parseInt(request.getParameter("doorNumber")),
-	                request.getParameter("streetName"), request.getParameter("state"),
-	                request.getParameter("district"),request.getParameter("country"),
-	                Integer.parseInt(request.getParameter("pincode")));
-            showEmployee(request, response);	
-		} catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	}
-    }
-
-    /**
-     * Employee Id and addressDetails  get from user and,
-     * update as a primary to database.
-     *
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     */
-    private void updateAsPrimary
-            (HttpServletRequest request, HttpServletResponse response) {
-    	try {
-            employeeService.updateAsPrimaryAddress
-                    (Integer.parseInt(request.getParameter("count")),
-    		    	Integer.parseInt(request.getParameter("employeeId")));
-    	    showEmployee(request, response);	
-    	} catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	}
-	}
-
-    /**
-     * Employee Id and addressDetails  get from user and,
-     * delete from database.
-     *
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     */
-	private void deleteAddress
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-	        employeeService.deleteEmployeeAddress
-	                (Integer.parseInt(request.getParameter("count")),
-		            Integer.parseInt(request.getParameter("employeeId")));
-		    showEmployee(request, response);
-		} catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	}
-	}
-
-    /**
-     * Employee Id and addressDetails  get from user and,
-     * update address to database.
-     *
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     * @throws EmployeeManagementException 
-     * @throws NumberFormatException 
-     */
-	private void updateAddress
-	        (HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String count =request.getParameter("count");
-		    employeeService.updateAddress(Integer.parseInt(count),
-		            Integer.parseInt(request.getParameter("employeeId")),
-				    Integer.parseInt(request.getParameter("doorNumber")),
-				    request.getParameter("streetName"), request.getParameter("state"), 
-				    request.getParameter("district"),
-				    request.getParameter("country"),
-				    Integer.parseInt(request.getParameter("pincode")));
-	        showEmployee(request, response);
-        } catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	}   
-	}
-
-    /**
-     * transfer request to show address and edit.
-     *
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     */
-	private void showAddressToEdit
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-			String id = request.getParameter("employeeId");
-			int employeeId = Integer.parseInt(id);
-			List<List<String>> employee = employeeService.getEmployeeDetails(employeeId);
-		    request.setAttribute("addresses",employee.get(1));
-			RequestDispatcher dispatcher 
-			        = request.getRequestDispatcher("editAddress.jsp");
-	        dispatcher.forward(request, response);	
-	    } catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(),request,response);	
-    	} catch (ServletException | IOException  e) {
-    		String message = "Fail To Display Address details please try again"; 
-    		sendMessage(message, request, response);	
-    	} 
-	}
-
-    /**
-     * used to call new address add form.
-     * 
-     * @param request   it contains  employeeId and address details.
-     * @param response  send response of the request to user.
-     * @throws  
-     */
-	private void newAddressFormCall
-	        (HttpServletRequest request, HttpServletResponse response) {
-		try {
-			RequestDispatcher dispatcher
-                    = request.getRequestDispatcher("editAddress.jsp");
-            dispatcher.forward(request, response);
-	    } catch (ServletException | IOException  e) {
-    		String message = "Fail To LoadPage..Try Again.."; 
-    		sendMessage(message, request, response);	
-    	}
-	}
-
-    /**
-     * get all Employee details to view.
-     *
-     * @param request   it contains request of get all employee.
-     * @param response  send response of the request to user.
-     */
-    private void getAllEmployees
-	        (HttpServletRequest request, HttpServletResponse response) { 
-	    try {
-		    String userRequest = request.getParameter("isDeleted");
-			boolean isDeleted = Boolean.parseBoolean(userRequest);
-	        request.setAttribute("allEmployees", employeeService.getAllEmployee(isDeleted));
-	        if(isDeleted) {
-	            RequestDispatcher dispatcher
-	                    = request.getRequestDispatcher("restoreEmployee.jsp");
-	            dispatcher.forward(request, response);
-	        } else {
-	        	RequestDispatcher dispatcher
-                        = request.getRequestDispatcher("employeeHomePage.jsp");
-                dispatcher.forward(request, response);
-	        }
-	    } catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	} catch (ServletException | IOException  e) {
-    		String message = "Fail To Display details please try again"; 
-    		sendMessage(message, request, response);	
-    	}
-	}
-	
-	
+    
 	/**
-	 * get  details from user and create employee
-	 *
-	 * @param request   it contains employee details to create.
-     * @param response  send response of the request to user.
+	 * get Assignedprojects and unAssignedprojects
+	 * list and send to userView.
+	 * 
+     * @param id  to get specific employee project  Details.
+     * 
+     * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    public void addEmployee
-            (HttpServletRequest request, HttpServletResponse response) {
-        String message = null;
-    	try {
-    	    String name = request.getParameter("name");
-       	    float salary = Float.parseFloat(request.getParameter("salary"));
-       	    String mobileNumber = request.getParameter("mobileNumber");
-       	    String date = request.getParameter("dateOfBirth");
-       	    java.util.Date DateOfBirth = employeeService.getDateOfBirth(date);
-       	    List<List<String>> addresses = getAddressList(request, response);
-       	    if (employeeService.validateMobileNumber(mobileNumber)) {
-       	    	int employeeId = (employeeService.addEmployeeDetails
-   	                    (name, salary, mobileNumber, DateOfBirth, addresses));
-   	            if(0 != employeeId) {
-                    message = "SUCESSFULLY ADDED! + YOUR EmployeeId id is :"
-   	                        + employeeId;    
-	            } else {
-	                message = "FAILED TO ADD!..PLEASE TRY AGAIN"; 
-	            }
-	        } else {
-	        	message = "Checek Your Mobile Number";
-	        }
-       	    sendMessage(message, request, response);	
-	    } catch (EmployeeManagementException e) {
-	        message = e.getMessage();
-   	        sendMessage(message, request, response);	
-   	    }
-    }
-   
-    /**
-     * get address details from user and put into list
-     *
-     * @param request   it contains address List
-     * @param response  send response of the request to user.
-     * @return List it contains addresslist
-     */   
-    private List<List<String>> getAddressList
-            (HttpServletRequest request, HttpServletResponse response) {
-        List<String> primaryAddress = new LinkedList<String>();
-	    List<String> secondaryAddress = new LinkedList<String>();
-	    List<List<String>> addresses = new LinkedList<List<String>>();
-	   	primaryAddress.add("Primary");
-	   	primaryAddress.add(request.getParameter("doorNumber"));
-	   	primaryAddress.add(request.getParameter("streetName"));
-	   	primaryAddress.add(request.getParameter("district"));
-	   	primaryAddress.add(request.getParameter("state"));
-	   	primaryAddress.add(request.getParameter("country"));
-	   	primaryAddress.add(request.getParameter("pincode"));
-	   	addresses.add((LinkedList<String>) primaryAddress);
-	   	secondaryAddress.add("Secondary");
-	   	secondaryAddress.add(request.getParameter("doorNumber1"));
-	   	secondaryAddress.add(request.getParameter("streetName1"));
-	   	secondaryAddress.add(request.getParameter("district1"));
-	   	secondaryAddress.add(request.getParameter("state1"));
-	   	secondaryAddress.add(request.getParameter("country1"));
-	   	secondaryAddress.add(request.getParameter("pincode1"));
-	   	addresses.add((LinkedList<String>) secondaryAddress);
-	   	return addresses;
-    }
-
-    /**
-     * Employee Id and details are get from database
-     * and send to view
-     *
-     * @param request   it contains employeeId to get details.
-     * @param response  send response of the request to user.
-     */
-    public void showEmployee
-            (HttpServletRequest request, HttpServletResponse response) {
-    	String message = null;
-    	try {
-    	    int id = Integer.parseInt(request.getParameter("employeeId"));
-       	    List<List<String>> employee = new LinkedList<List<String>>();
-            if(!(employeeService.checkEmployeeIdExists(id))) {
-       	        employee = employeeService.getEmployeeDetails(id);
-       	        request.setAttribute("view", employee);
-                RequestDispatcher dispatcher 
-                        = request.getRequestDispatcher("showEmployee.jsp");
-                dispatcher.forward(request, response);
-            } else {
-            	message = "EmployeeNot Exists";
-            	sendMessage(message, request, response);
-            }
-	    } catch (EmployeeManagementException e) {
-    	    sendMessage(e.getMessage(), request, response);	
-    	} catch (ServletException | IOException  e) {
-    		message = "Fail To Display details please try again"; 
-    		sendMessage(message, request, response);	
-    	}
-    }
-     
-
-    /**
-     * Employee Id and details are get from user and,
-     * update into database. 
-     *
-     * @param request   it contains employeeId and details to update.
-     * @param response  send response of the request to user.
-     */
-    public void updateEmployee
-	        (HttpServletRequest request, HttpServletResponse response) {
-    	String message = null;
+    @RequestMapping("/getEmployeeProjects")    
+    public ModelAndView getProjectEmployees(@RequestParam int id) {
+    	ModelAndView modelAndView = new ModelAndView(); 
 		try {
-            int id = Integer.parseInt(request.getParameter("employeeId"));
-            String name = request.getParameter("name");
-            Float salary = Float.parseFloat(request.getParameter("salary"));
-            String mobileNumber = request.getParameter("mobileNumber");
-            String date = request.getParameter("dateOfBirth");
-            java.util.Date DateOfBirth = employeeService.getDateOfBirth(date);
-            if (employeeService.validateMobileNumber(mobileNumber)) {
-	    	    employeeService.updateEmployee
-	    	            (id, name, salary, mobileNumber, DateOfBirth);
-	    	    showEmployee(request, response);
-            } else {
-            	message = "Invalid Mobile Number..Update Failure";
-       	        sendMessage(message, request, response);
-            }
-	    } catch (EmployeeManagementException e) {
-	    	message = e.getMessage();
-   	        sendMessage(message, request, response);	
-   	    }
+	    	Employee employee = employeeService.getEmployeeDetails(id);
+	    	modelAndView.addObject("employee", employee);
+	    	modelAndView.addObject
+	    	        ("projectEmployees", employeeService.employeeProjects(id));
+	    	modelAndView.setViewName("showEmployee");
+		} catch (EmployeeManagementException e) {
+			modelAndView.addObject("message", e.getMessage());
+			modelAndView.setViewName("messagePrint");
+		}
+        return modelAndView;  
     }
-   
-    /**
-     * Employee Id are get from user and,
-     * Delete from database. 
-     *
-     * @param request   Http request it contains employeeId to delete.
-     * @param response  send response of the request to user.
+    
+	/**
+	 * To Cretae new Employee.
+	 * 
+     * @param employee  to create new Employee.
+     * 
+     * @return model  Contains details for userView and viewPage Details.
      */
-    public void deleteOrRestoreEmployee
-           (HttpServletRequest request, HttpServletResponse response) {
-	    String message =null;
-	    try {
-		    int id = Integer.parseInt(request.getParameter("employeeId"));
-	        employeeService.deleteOrRestoreEmployee(id);
-	        message = "OPERATION SUCESSFULL!";    
-	        sendMessage(message, request, response);
-	    } catch (EmployeeManagementException e) {
-	    	message = e.getMessage();
-   	        sendMessage(message, request, response);	
-   	    }
-    }
-
-    /**
-     * view message to user whether operation sucessfully 
-     * done or not
-     *
-     * @param message    it contains message to display.
-     * @param request   it contains projectId to delete.
-     * @param response  send response of the request to user.
-     */
-    private void sendMessage(String message,HttpServletRequest request,
-            HttpServletResponse response) {
-	    try {
-            request.setAttribute("message", message);
-		    RequestDispatcher dispatcher 
-                    = request.getRequestDispatcher("messagePrint.jsp");
-            dispatcher.forward(request, response);
-	    } catch(ServletException | IOException  exception) {
-            exception.printStackTrace();	
-	    }	
+    @RequestMapping(value="/save", method = RequestMethod.POST)    
+    public String saveProject(@ModelAttribute("emp") Employee employee, Model model) {
+    	String message = null;
+    	try {
+            int employeId = employeeService.addEmployeeDetails(employee);
+            message = "Your ProjectId is :" + employeId;
+            model.addAttribute("message", message);
+    	} catch(EmployeeManagementException e) {
+    		model.addAttribute("message", e.getMessage());
+    	}
+        return "messagePrint";
     }
 }
