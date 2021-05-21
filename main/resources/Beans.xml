@@ -1,0 +1,16 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns = "http://www.springframework.org/schema/beans"
+   xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation = "http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+   <bean id = "projectService" class = "com.ideas2it.employeeManagementSystem.projectManagement.service.impl.ProjectServiceImpl">
+     <constructor-arg ref = "projectDao"/>
+   </bean>
+   <bean id = "projectDao" class = "com.ideas2it.employeeManagementSystem.projectManagement.dao.impl.ProjectDaoImpl">
+   </bean>
+   <bean id = "employeeService" class = "com.ideas2it.employeeManagementSystem.employeeManagement.service.impl.EmployeeServiceImpl">
+    <constructor-arg ref = "employeeDao"/>
+   </bean>
+   <bean id = "employeeDao" class = "com.ideas2it.employeeManagementSystem.employeeManagement.dao.impl.EmployeeDaoImpl">
+   </bean>
+</beans>

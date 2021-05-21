@@ -3,6 +3,8 @@ package com.ideas2it.employeeManagementSystem.projectManagement.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,16 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.ideas2it.employeeManagementSystem.employeeManagement.service.impl.EmployeeServiceImpl;
-import com.ideas2it.employeeManagementSystem.projectManagement.dao.ProjectDao;
-import com.ideas2it.employeeManagementSystem.projectManagement.dao.impl.ProjectDaoImpl;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.ProjectService;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.impl.ProjectServiceImpl;
 import com.ideas2it.exception.EmployeeManagementException;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;     
+    
 
 /**
  * ProjectController for doing CRUD operation.
@@ -32,8 +29,9 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @Controller    
 public class controllerProject {  
-	ProjectService projectService = new ProjectServiceImpl();
-    
+	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+	ProjectService projectService = context.getBean("projectService", ProjectService.class);
+	
 	/**
 	 * call Project create Form.
 	 * 
@@ -43,7 +41,7 @@ public class controllerProject {
      */
     @RequestMapping("/addProject")    
     public String showform(Model model) { 
-        model.addAttribute("command", new Project());  
+        model.addAttribute("project", new Project());  
         return "addProject";   
     } 
     
@@ -60,7 +58,7 @@ public class controllerProject {
         ModelAndView modelAndView = new ModelAndView(); 
 		try {
 			project = projectService.getProjectDetails(id);
-			modelAndView.addObject("command", project);
+			modelAndView.addObject("project", project);
 			modelAndView.setViewName("addProject");
 		} catch (EmployeeManagementException e) {
 			modelAndView.addObject("message", e.getMessage());
@@ -124,7 +122,7 @@ public class controllerProject {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/DeleteProject" )    
+    @RequestMapping("/DeleteProject")    
     public ModelAndView DeleteProject(@RequestParam("id") int id) { 
     	ModelAndView modelAndView = new ModelAndView(); 
     	String message = null;

@@ -3,8 +3,6 @@ package com.ideas2it.employeeManagementSystem.employeeManagement.model;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 
@@ -19,7 +17,6 @@ public class Employee {
     private String name;
     private float salary;
     private String mobileNumber;
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date dateOfBirth;
     private boolean isDeleted;
     private List<Address> addressList;

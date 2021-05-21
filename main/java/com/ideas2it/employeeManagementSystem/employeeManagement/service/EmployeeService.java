@@ -27,21 +27,7 @@ public interface EmployeeService {
      * @isEmployeeAdded  return true when added sucessfully or return false. 
      */
     public int addEmployeeDetails(Employee employee) throws EmployeeManagementException;
-			
-    /**
-     * Employee Details are get from user and,
-     * add Employee details to database.
-     *
-     * @param employeeId     Specific Id for individual persons.  
-     * @param doorNumber         doorNumber of employee need to add.
-     * @param streetName     streetName of employee need to add.
-     * @param district       district of employee need to add.
-     * @param State          State of employee need to add.
-     * @param country        country of employee need to add.
-     * @param pinCode        pinCode of employee need to add.
-     */
-     public List<Address> getAddressList(List<List<String>> addresses);
-
+    
     /**
      * Here EmployeeID  get from user and,
      * EmployeeDetails are get from database.
@@ -49,7 +35,7 @@ public interface EmployeeService {
      * @param employeeId    EmployeeId to get that specific person,
      * details from employees map. 
      *
-     * @return String   Employee Details for user View. 
+     * @return Employee   Employee Details for user View. 
      * @throws EmployeeManagementException 
      */
     public Employee getEmployeeDetails(int employeeId) throws EmployeeManagementException;
@@ -64,48 +50,12 @@ public interface EmployeeService {
      * @throws EmployeeManagementException 
      */
     public boolean checkEmployeeIdExists(int employeeId) throws EmployeeManagementException;
-
-    /**
-     * projectId get from user and,
-     * Checking Id Already we have or not.
-     *
-     * @param projectId  For checking whether already we have or not.
-     *
-     * @return true when Employee ID already Registered or return false.
-     * @throws EmployeeManagementException 
-     */
-    public boolean checkProjectIdExists(int projectId) throws EmployeeManagementException;
-
-    /**
-     * Check whether given mobilenumber valid or not.
-     *
-     * @param mobileNumber mobileNumber for validation. 
-     *
-     * @return true when mobileNumber is valid or return false.
-     *
-     */
-    public boolean validateMobileNumber(String mobileNumber);
-
-    /**
-     * DateOfBirth are get from user and,
-     * Checking DateOfBirth valid or not.
-     *
-     * @param dateOfBirth. DateOfBirth for validation.
-     *
-     * @return VaildatedDateOfBirth   If valid DateOfBirth,
-     * return DateOfBirth or return null
-     */
-    public Date getDateOfBirth(String dateOfBirth);
   
     /**
      * Employee Details are get from user and,
      * update Employee details to database.
      *
-     * @param employeeId   Id is for one whose Details need to Change.       
-     * @param name         new Name for change.
-     * @param salary       new Salary for change.
-     * @param mobileNumber new mobileNumber for change.
-     * @param dateOfBirth  new DateOfBirth for change.
+     * @param employee  employeeDetails to update.
      *
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
@@ -127,34 +77,33 @@ public interface EmployeeService {
      * remove Employee details from database.
      *
      * @param employeeId  for remove that specific employee. 
+     * @param choosedaddress  to delete that specific address.
      * @throws EmployeeManagementException 
+     * 
      */
-    public boolean deleteEmployeeAddress(int choosedAddress, int employeeId) throws EmployeeManagementException;
+    public boolean deleteEmployeeAddress(int choosedAddress, int employeeId) 
+    		throws EmployeeManagementException;
 	
     /**
      * update address as a primary address
      * 
      * @choosedAddress  address to update
+     * @employeeId   to update specific employeeAddress.
      * 
      * @return boolean true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public void updateAsPrimaryAddress(int choosedAddress, int employeeId) throws EmployeeManagementException;
+    public void updateAsPrimaryAddress(int choosedAddress, int employeeId) 
+    		throws EmployeeManagementException;
 	
     /**
      * Employee Details are get from user and,
      * add Employee address details to database.
      *
      * @param employeeId     Specific Id for individual persons.  
-     * @param doorNumber         doorNumber need to change.
-     * @param streetName     streetName need to change.
-     * @param district       district need to change.
-     * @param State          State of need to change.
-     * @param country        country need to change.
-     * @param pinCode        pinCode need to change.
+     * @param address        address deatils to update.
      * @param choosedAddress old address for update.
      *
-     * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
     public void updateAddress(int choosedAddress, Address address,
@@ -165,18 +114,13 @@ public interface EmployeeService {
      * add Employee address details to database.
      *
      * @param employeeId     Specific Id for individual persons.  
-     * @param doorNumber         doorNumber need to change.
-     * @param streetName     streetName need to change.
-     * @param district       district need to change.
-     * @param State          State of need to change.
-     * @param country        country need to change.
-     * @param pinCode        pinCode need to change.
-     * @param choosedAddress old address for update.
+     * @param address      address details to add.
      *
      * @return isUpdated true when sucessfully updated or return false.
      * @throws EmployeeManagementException 
      */
-    public boolean addNewAddress(int employeeId, Address address) throws EmployeeManagementException;
+    public boolean addNewAddress(int employeeId, Address address) 
+    		throws EmployeeManagementException;
 			
     /**
      * EmployeeID are get from user and,

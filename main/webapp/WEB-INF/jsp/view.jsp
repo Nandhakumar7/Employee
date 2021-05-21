@@ -43,7 +43,7 @@
             <th>${project.timePeriod}</th>
             <th><a href="getProjectEmployeesList?id=${project.id}">Assign/UnAssign</a></th>
             <th><a href="editProject?id=${project.id}">Edit</a></th>
-            <th><a href="DeleteProject/${project.id}">Delete</a></th>
+            <th><a href="DeleteProject?id=${project.id}">Delete</a></th>
         </tr>
     </table><br><br>
     <c:choose>

@@ -3,6 +3,7 @@ package com.ideas2it.employeeManagementSystem.employeeManagement.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,7 +26,8 @@ import com.ideas2it.exception.EmployeeManagementException;
  */
 @Controller    
 public class EmployeeController {  
-	EmployeeService employeeService = new EmployeeServiceImpl();
+	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+	EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);
     
 	/**
 	 * call Employee create Form.
@@ -36,7 +38,7 @@ public class EmployeeController {
      */
     @RequestMapping("/addEmployee")    
     public String showform(Model model) { 
-        model.addAttribute("command", new Employee());  
+        model.addAttribute("employee", new Employee());  
         return "addEmployee";   
     } 
     
@@ -45,19 +47,19 @@ public class EmployeeController {
 	 * 
      * @param model   to send model form to update employee.
      * 
-	 * @return String viewPage name.
+	 * @return ModelAndView model and viewpage name.
      */
     @RequestMapping("/editEmployeeForm")    
     public ModelAndView showEditEmployeeForm(@RequestParam int id) { 
-    	ModelAndView modelAndView = new ModelAndView(); 
+        ModelAndView modelAndView = new ModelAndView(); 
     	try {
-			Employee employee = employeeService.getEmployeeDetails(id);
-			modelAndView.addObject("command", employee);
-			modelAndView.setViewName("editEmployee");
-		} catch (EmployeeManagementException e) {
-			modelAndView.addObject("message", e.getMessage());
-		    modelAndView.setViewName("messagePrint");
-		}
+            Employee employee = employeeService.getEmployeeDetails(id);
+            modelAndView.addObject("employee", employee);
+            modelAndView.setViewName("editEmployee");
+        } catch (EmployeeManagementException e) {
+            modelAndView.addObject("message", e.getMessage());
+            modelAndView.setViewName("messagePrint");
+        }
         return modelAndView;   
     }
     
@@ -70,33 +72,34 @@ public class EmployeeController {
      */
     @RequestMapping("/addAddress")    
     public ModelAndView addAddressForm(@RequestParam int id) {
-    	ModelAndView modelAndView = new ModelAndView(); 
-    	modelAndView.addObject("command", new Address()); 
-    	modelAndView.addObject("employeeId", id);
-    	modelAndView.addObject("choosedAddress", 0);
-    	modelAndView.setViewName("editAddress");
+        ModelAndView modelAndView = new ModelAndView(); 
+        modelAndView.addObject("address", new Address()); 
+        modelAndView.addObject("employeeId", id);
+        modelAndView.addObject("choosedAddress", 0);
+        modelAndView.setViewName("editAddress");
         return modelAndView;   
     }
     
     /**
-	 * update employeedetails.
+	 * get details from user and update.
 	 * 
      * @param model   to send model form to edit Address
      * 
 	 * @return String viewPage name.
      */
     @RequestMapping("/updateEmployee")    
-    public ModelAndView updateEmployee(@ModelAttribute Employee updatedEmployee) {
-    	ModelAndView modelAndView = new ModelAndView();
-    	try {
-    		employeeService.updateEmployee(updatedEmployee);
-    		Employee employee = employeeService.getEmployeeDetails(updatedEmployee.getId());
-			modelAndView.addObject("employee", employee);
-	    	modelAndView.setViewName("showEmployee");
-		} catch (EmployeeManagementException e) {
-			modelAndView.addObject("message", e.getMessage());
-		    modelAndView.setViewName("messagePrint");
-		} 
+    public ModelAndView updateEmployee
+            (@ModelAttribute Employee updatedEmployee) {
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            employeeService.updateEmployee(updatedEmployee);
+            Employee employee = employeeService.getEmployeeDetails(updatedEmployee.getId());
+            modelAndView.addObject("employee", employee);
+            modelAndView.setViewName("showEmployee");
+        } catch (EmployeeManagementException e) {
+            modelAndView.addObject("message", e.getMessage());
+            modelAndView.setViewName("messagePrint");
+        } 
         return modelAndView;   
     }
     
@@ -112,7 +115,7 @@ public class EmployeeController {
     		@RequestParam("id")int id, @RequestParam("choosedAddressId")int addressId ) {
     	ModelAndView modelAndView = new ModelAndView();
     	try {
-			modelAndView.addObject("command", employeeService.getEmployeeAddress(id, addressId));
+			modelAndView.addObject("address", employeeService.getEmployeeAddress(id, addressId));
 			modelAndView.addObject("employeeId", id);
 			modelAndView.addObject("choosedAddress", addressCount);
 	    	modelAndView.setViewName("editAddress");
@@ -398,7 +401,7 @@ public class EmployeeController {
      * @return model  Contains details for userView and viewPage Details.
      */
     @RequestMapping(value="/save", method = RequestMethod.POST)    
-    public String saveProject(@ModelAttribute("emp") Employee employee, Model model) {
+    public String saveProject(@ModelAttribute Employee employee, Model model) {
     	String message = null;
     	try {
             int employeId = employeeService.addEmployeeDetails(employee);

@@ -14,7 +14,7 @@
 </head>
 <h1 style="text-align: center;background-color: white;">ProjectManagement</h1>
 <body style="background-color:lightblue;text-align:center">               
-       <form:form method="post" action="saveOrUpdate" >    
+       <form:form method="post" action="saveOrUpdate" modelAttribute="project" >    
        <table align= "center">  
          <tr>    
           <td><form:hidden path="id" /></td> 

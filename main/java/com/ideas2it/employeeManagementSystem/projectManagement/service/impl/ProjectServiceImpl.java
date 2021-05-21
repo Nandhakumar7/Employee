@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import com.ideas2it.employeeManagementSystem.projectManagement.dao.impl.ProjectDaoImpl;
 import com.ideas2it.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.projectManagement.dao.ProjectDao;
+import com.ideas2it.employeeManagementSystem.employeeManagement.dao.EmployeeDao;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 import com.ideas2it.employeeManagementSystem.employeeManagement.service.EmployeeService;
@@ -21,8 +24,11 @@ import com.ideas2it.employeeManagementSystem.projectManagement.service.ProjectSe
  * @version  1.0 29-03-2021.
  * @author   Nandhakumar.
  */
-public class ProjectServiceImpl implements ProjectService{
-    private ProjectDao projectDaoImpl =  new ProjectDaoImpl();
+public class ProjectServiceImpl implements ProjectService {
+    private ProjectDao projectDao;
+    public ProjectServiceImpl(ProjectDao projectDao) {
+    	this.projectDao = projectDao;
+    }
     
     /**
      * {@inheritDoc}
@@ -30,7 +36,7 @@ public class ProjectServiceImpl implements ProjectService{
      */
     @Override
     public int addProject(Project project) throws EmployeeManagementException{
-        int projectId = projectDaoImpl.insertProjectDetails(project);	
+        int projectId = projectDao.insertProjectDetails(project);	
         return projectId;
     }
 			
@@ -40,7 +46,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Override
     public Project getProjectDetails(int projectId) 
             throws EmployeeManagementException {
-        Project project = projectDaoImpl.getProjectDetails(projectId);
+        Project project = projectDao.getProjectDetails(projectId);
         return project;
     }
     
@@ -50,7 +56,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Override
     public boolean checkProjectIdExists(int projectId) 
     		throws EmployeeManagementException  {
-        return(projectDaoImpl.checkProjectIdExists(projectId));
+        return(projectDao.checkProjectIdExists(projectId));
     }
 
     /**
@@ -59,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@Override
     public List<Project> getProjects(boolean isDeleted) 
             throws EmployeeManagementException {
-        List<Project> allProject = projectDaoImpl.getAllProject(isDeleted);
+        List<Project> allProject = projectDao.getAllProject(isDeleted);
         return allProject;
     }
 
@@ -72,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService{
                 = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	Project oldProject = null;
     	try {
-    		oldProject = projectDaoImpl.getProjectDetails(project.getId());
+    		oldProject = projectDao.getProjectDetails(project.getId());
             String newProjectName
                     = (null == project.getProjectName()) ? project.getProjectName() : project.getProjectName();
             String newManagerName
@@ -85,7 +91,7 @@ public class ProjectServiceImpl implements ProjectService{
             oldProject.setManagerName(newManagerName);
             oldProject.setDepartment(newDepartment);
             oldProject.setTimePeriod(newTimePeriod);
-            projectDaoImpl.updateProject(oldProject);
+            projectDao.updateProject(oldProject);
     	} catch (EmployeeManagementException e) {
     		log.logError("Failed to update Project Id is" + project.getId(), e);
         	throw new EmployeeManagementException("Employee Update Failure");
@@ -102,13 +108,15 @@ public class ProjectServiceImpl implements ProjectService{
     	EmployeeManagementLogger log 
                 = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	try {
-            EmployeeService employeeService = new EmployeeServiceImpl();
-            project = projectDaoImpl.getProjectDetails(projectId);
+    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);
+           // EmployeeService employeeService = new EmployeeServiceImpl();
+            project = projectDao.getProjectDetails(projectId);
             List<Employee> projectEmployees = project.getEmployeesList();
             List<Employee> employees 
                     = employeeService.getEmployeeForProject(employeeId);
             project.setEmployeesList(employees);
-            projectDaoImpl.updateProject(project);
+            projectDao.updateProject(project);
     	} catch (EmployeeManagementException e) {
     		log.logError("Failed to Assigning Employees,Project Id is " + projectId, e);
         	throw new EmployeeManagementException("Employee Assigning/UnAssigning Failure");
@@ -123,7 +131,7 @@ public class ProjectServiceImpl implements ProjectService{
 	        throws EmployeeManagementException {
     	List<Project> requiredProjects = new ArrayList<Project>();
     	try {
-            List<Project> projects = projectDaoImpl.getAllProject(false);
+            List<Project> projects = projectDao.getAllProject(false);
             for (Project project : projects) {			
                 if (projectsId.contains(project.getId())) {
                     requiredProjects.add(project);
@@ -147,14 +155,14 @@ public class ProjectServiceImpl implements ProjectService{
                 = new EmployeeManagementLogger(ProjectServiceImpl.class);
     	Project project = null;
     	try {
-            project = projectDaoImpl.getProjectDetails(projectId);
+            project = projectDao.getProjectDetails(projectId);
             if(project.getIsDeleted()) {
         	    project.setIsDeleted(false);
             } else {
         	    project.setIsDeleted(true);
             }
             project.setEmployeesList(null);
-            projectDaoImpl.updateProject(project);
+            projectDao.updateProject(project);
     	}  catch (EmployeeManagementException e) {
     		log.logError("Failed to Delete or Restore " + projectId, e);
             throw new EmployeeManagementException("Fail To Delete");
@@ -167,7 +175,8 @@ public class ProjectServiceImpl implements ProjectService{
     @Override  
     public boolean checkEmployeeIdExists(int employeeId) 
     		throws EmployeeManagementException {
-        EmployeeService employeeService = new EmployeeServiceImpl();		
+    	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    	EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);	
         return employeeService.checkEmployeeIdExists(employeeId);
     }
 
@@ -180,8 +189,10 @@ public class ProjectServiceImpl implements ProjectService{
             throws EmployeeManagementException {
     	List<List> employeeProjectAssignedDetails = new LinkedList<List>();
     	try { 
-    	    EmployeeService employeeService = new EmployeeServiceImpl();
-            Project project = projectDaoImpl.getProjectDetails(projectId);
+    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);
+    	   /// EmployeeService employeeService = new EmployeeServiceImpl();
+            Project project = projectDao.getProjectDetails(projectId);
             List<Employee> employees = project.getEmployeesList();
             List<Integer> assignedEmployeesId = new ArrayList<Integer>();
             List<Employee> allEmployees = employeeService.getAllEmployees(false); 

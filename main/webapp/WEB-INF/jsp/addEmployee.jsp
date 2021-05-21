@@ -15,7 +15,7 @@
 <h1 style="text-align: center;background-color: white;">EmployeeManagement</h1>
 <body style="background-color:lightblue;text-align:center">
     <h2>Create New Project</h2>
-      <form:form method="post" action="save">  
+      <form:form method="post" action="save" modelAttribute="employee">  
         <label>Name</label><form:input path="name" required="required"/><br><br>
         <label>Salary</label><form:input path="salary" required="required"/><br><br>
         <label>MobileNumber</label><form:input path="mobileNumber" pattern ="[6789][0-9]{9}" required="required"/><br><br>

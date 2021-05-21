@@ -7,11 +7,14 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import com.ideas2it.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.employeeManagement.dao.EmployeeDao;
 import com.ideas2it.employeeManagementSystem.employeeManagement.dao.impl.EmployeeDaoImpl;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
-import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee; 
+import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
+import com.ideas2it.employeeManagementSystem.projectManagement.dao.ProjectDao;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.ProjectService;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.impl.ProjectServiceImpl;
@@ -26,37 +29,20 @@ import com.ideas2it.logger.EmployeeManagementLogger;
  * @author   Nandhakumar.
  */
 public class EmployeeServiceImpl implements EmployeeService {
-    private EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int addEmployeeDetails(Employee employee) throws EmployeeManagementException {
-       // List<Address> addressList = getAddressList(addresses);
-       // boolean isDeleted = false;
-       // Employee employee = new Employee (name, salary,
-               // mobileNumber, dateofbirth, addressList, isDeleted);
-        int employeeId
-                = employeeDaoImpl.insertEmployeeDetails(employee);				
-        return employeeId;
+    private EmployeeDao employeeDao;
+    public EmployeeServiceImpl(EmployeeDao employeeDao) {
+    	this.employeeDao = employeeDao;
     }
-	
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<Address> getAddressList(List<List<String>> addresses) {
-        List <Address> addressList = new ArrayList<Address>();
-        for(List<String> address : addresses) {
-            int doorNumber = Integer.parseInt(address.get(1));
-            int pinCode = Integer.parseInt(address.get(6));
-            boolean isDeleted = false;	
-        addressList.add(new Address (doorNumber, address.get(2), address.get(3), 
-                address.get(4), address.get(5), pinCode,
-                address.get(0), isDeleted));
-        }
-        return addressList;
+    public int addEmployeeDetails(Employee employee) 
+    		throws EmployeeManagementException {
+        int employeeId
+                = employeeDao.insertEmployeeDetails(employee);				
+        return employeeId;
     }
 			
     /**
@@ -65,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee getEmployeeDetails(int employeeId)
     		throws EmployeeManagementException {
-        Employee employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+        Employee employee = employeeDao.getEmployeeDetails(employeeId);
         List<Address> addressList = employee.getAddressList();	
         List<Address> addresses = getUnDeletedAddress(addressList);
         employee.setAddressList(addresses);
@@ -78,7 +64,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean checkEmployeeIdExists(int employeeId)
     		throws EmployeeManagementException {
-        return(employeeDaoImpl.checkEmployeeIdExists(employeeId));
+        return(employeeDao.checkEmployeeIdExists(employeeId));
     }
     
     /**
@@ -87,35 +73,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> getAllEmployees(boolean isDeleted) 
     		throws EmployeeManagementException {
-    	List<Employee> allEmployee = employeeDaoImpl.getAllEmployeeDetails(isDeleted);
+    	List<Employee> allEmployee = employeeDao.getAllEmployeeDetails(isDeleted);
 		return allEmployee;
     	
-    }
-    
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean validateMobileNumber(String mobileNumber) {
-        return (mobileNumber.matches("[6-9][0-9]{9}"));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getDateOfBirth(String dateOfBirth) {
-        Date validatedDateOfBirth;
-        System.out.println(dateOfBirth);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setLenient(false);
-        try {
-            validatedDateOfBirth = dateFormat.parse(dateOfBirth);
-        } catch (Exception e) {
-            validatedDateOfBirth = null;
-    	}
-    	return validatedDateOfBirth;
     }
     
     /**
@@ -127,18 +87,22 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	Employee employee =null;
     	try {
-            employee = employeeDaoImpl.getEmployeeDetails(updateEmployee.getId());
-            String newName = (null == updateEmployee.getName()) ? employee.getName() : updateEmployee.getName();
+            employee = employeeDao.getEmployeeDetails(updateEmployee.getId());
+            String newName = (null == updateEmployee.getName()) 
+            		? employee.getName() : updateEmployee.getName();
             String newMobileNumber
-                    = (null == updateEmployee.getMobileNumber()) ? employee.getMobileNumber() : updateEmployee.getMobileNumber();
-            float newSalary = (0 == updateEmployee.getSalary()) ? employee.getSalary() : updateEmployee.getSalary();
+                    = (null == updateEmployee.getMobileNumber()) 
+                    ? employee.getMobileNumber() : updateEmployee.getMobileNumber();
+            float newSalary = (0 == updateEmployee.getSalary()) 
+            		? employee.getSalary() : updateEmployee.getSalary();
             Date newDateOfBirth
-                    = (null == updateEmployee.getDateOfBirth()) ? employee.getDateOfBirth() : updateEmployee.getDateOfBirth();
+                    = (null == updateEmployee.getDateOfBirth()) 
+                    ? employee.getDateOfBirth() : updateEmployee.getDateOfBirth();
             employee.setName(newName);
             employee.setMobileNumber(newMobileNumber);
             employee.setSalary(newSalary);
             employee.setDateOfBirth(newDateOfBirth);
-            employeeDaoImpl.updateEmployee(employee);
+            employeeDao.updateEmployee(employee);
     	} catch(EmployeeManagementException e) {
     		log.logError("fail to update Id is " + updateEmployee.getId(), e);
     	    throw new EmployeeManagementException("Employee Update Failure");	
@@ -167,7 +131,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Address getEmployeeAddress(int employeeId, int id) 
     		throws EmployeeManagementException {
         Employee employee
-                = employeeDaoImpl.getEmployeeDetails(employeeId);
+                = employeeDao.getEmployeeDetails(employeeId);
         List<Address> addressList = employee.getAddressList();
         List<Address> addresses = getUnDeletedAddress(addressList);
         Address choosedAddress = null;
@@ -200,7 +164,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     	try {
             boolean isDeleted = false;
             Employee employee
-                    = employeeDaoImpl.getEmployeeDetails(employeeId);
+                    = employeeDao.getEmployeeDetails(employeeId);
             List<Address> addressList = employee.getAddressList();	
             List<Address> addresses = getUnDeletedAddress(addressList);
             Address employeeAddress = addresses.get(choosedAddress - 1);
@@ -211,7 +175,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                         addressObject.setIsDeleted(true);
                     }
                 }
-                return employeeDaoImpl.updateEmployee(employee);  
+                return employeeDao.updateEmployee(employee);  
             } else {
                 return isDeleted;
             }
@@ -232,7 +196,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
 		Employee employee = null;
 		try {
-            employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+            employee = employeeDao.getEmployeeDetails(employeeId);
             List<Address> addressList = employee.getAddressList();
             List<Address> addresses = getUnDeletedAddress(addressList);
             Address employeeAddress = addresses.get(choosedAddress - 1);
@@ -245,7 +209,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
             employeeAddress.setAddressType("Primary");
             employee.setAddressList(addressList);
-            employeeDaoImpl.updateEmployee(employee);
+            employeeDao.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
         	log.logError("Fail to update as primary address employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Employee Primary AddressUpdate Failure");	
@@ -262,7 +226,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
         Employee employee = null;
         try {
-            employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+            employee = employeeDao.getEmployeeDetails(employeeId);
             List<Address> addressList = employee.getAddressList();
             List<Address> addresses = getUnDeletedAddress(addressList);
             Address oldAddress = addresses.get(choosedAddress - 1);
@@ -273,7 +237,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		    oldAddress.setCountry(address.getCountry());
 		    oldAddress.setPinCode(address.getPinCode());
             employee.setAddressList(addressList);
-            employeeDaoImpl.updateEmployee(employee);
+            employeeDao.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
         	log.logError("Fail to update address employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Employee AddressUpdate Failure");	
@@ -287,7 +251,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public boolean addNewAddress(int employeeId, Address address) throws EmployeeManagementException {
         Employee employee = null;
         try {
-            employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+            employee = employeeDao.getEmployeeDetails(employeeId);
             List<Address> addressList = employee.getAddressList();
             String addressType = "Secondary";
             address.setAddressType(addressType);
@@ -296,7 +260,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         } catch (EmployeeManagementException e) {
             throw new EmployeeManagementException("Employee Address Adding Failure");	
         }
-        return employeeDaoImpl.addNewAddress(employee);
+        return employeeDao.addNewAddress(employee);
     }
 	
     /**
@@ -309,7 +273,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
         Employee employee = null;
         try {
-            employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+            employee = employeeDao.getEmployeeDetails(employeeId);
             boolean isDeleted;
             if(employee.getIsDeleted()) {
         	    isDeleted = false;
@@ -322,22 +286,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 address.setIsDeleted(isDeleted);
             }
             employee.setProjectList(null);
-            employeeDaoImpl.updateEmployee(employee);
+            employeeDao.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
         	log.logError("fail to delete or restore id is " + employeeId, e);
             throw new EmployeeManagementException("Employee Delete/Restore Failure");	
         }
-    }
- 
-    /**
-     * {@inheritDoc} 
-     */ 
-    @Override
-    public boolean checkProjectIdExists(int projectId) 
-    		throws EmployeeManagementException {
-       ProjectService projectService 
-               = new ProjectServiceImpl();
-        return projectService.checkProjectIdExists(projectId);
     }
 	
     /**
@@ -349,7 +302,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 			throws EmployeeManagementException {
         List<Employee> requiredEmployees = new ArrayList<Employee>();
         try {
-            List<Employee> employees = (employeeDaoImpl.getAllEmployeeDetails(false));
+            List<Employee> employees = (employeeDao.getAllEmployeeDetails(false));
             for (Employee employee : employees) {			
                 if (employeeId.contains(employee.getId())) {
                     requiredEmployees.add(employee);
@@ -371,12 +324,13 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	Employee employee;
     	try {
-            ProjectService projectService = new ProjectServiceImpl();
-            employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		ProjectService projectService = context.getBean("projectService", ProjectService.class);
+            employee = employeeDao.getEmployeeDetails(employeeId);
             List<Project> employeeProjects = employee.getProjectList();
             List<Project> projects = projectService.getProjectsForEmployee(projectsId);
             employee.setProjectList(projects);	
-            employeeDaoImpl.updateEmployee(employee);
+            employeeDao.updateEmployee(employee);
         } catch (EmployeeManagementException e) {
         	log.logError("fail to assign project employeeId is " + employeeId, e);
             throw new EmployeeManagementException("Project Assigning Failure..Try Again..");	
@@ -391,8 +345,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     		throws EmployeeManagementException {
     	List<List> employeeProjectAssignedDetails = new LinkedList<List>();
     	try { 
-    	    ProjectService projectService = new ProjectServiceImpl();
-            Employee employee = employeeDaoImpl.getEmployeeDetails(employeeId);
+    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		ProjectService projectService = context.getBean("projectService", ProjectService.class);
+            Employee employee = employeeDao.getEmployeeDetails(employeeId);
             List<Project> projects = employee.getProjectList();
             List<Integer> assignedProjectsId = new ArrayList<Integer>();
             List<Project> allProjects = projectService.getProjects(false);
