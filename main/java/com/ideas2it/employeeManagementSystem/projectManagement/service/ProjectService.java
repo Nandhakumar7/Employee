@@ -3,7 +3,7 @@ package com.ideas2it.employeeManagementSystem.projectManagement.service;
 import java.util.List;
 import java.util.Map;
 
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 
 /**

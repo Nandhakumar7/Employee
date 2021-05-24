@@ -6,11 +6,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
-import com.ideas2it.sessionFactory.DataBaseConnection;
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.sessionFactory.DataBaseConnection;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.employeeManagement.dao.EmployeeDao;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
-import com.ideas2it.logger.EmployeeManagementLogger;
+import com.ideas2it.employeeManagementSystem.logger.EmployeeManagementLogger;
 
 /**
  * DaoImplementation get Details from user,
@@ -73,6 +73,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
         	if(null != session) {
                 session.getTransaction().rollback();
         	}
+        	isUpdated = false;
             throw new EmployeeManagementException(e);
         } finally {
         	closeSeesion(session);

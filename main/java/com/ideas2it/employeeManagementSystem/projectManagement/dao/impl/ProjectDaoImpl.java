@@ -7,11 +7,11 @@ import org.hibernate.query.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
-import com.ideas2it.exception.EmployeeManagementException;
-import com.ideas2it.logger.EmployeeManagementLogger;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.logger.EmployeeManagementLogger;
 import com.ideas2it.employeeManagementSystem.projectManagement.dao.ProjectDao;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
-import com.ideas2it.sessionFactory.DataBaseConnection;
+import com.ideas2it.employeeManagementSystem.sessionFactory.DataBaseConnection;
 
 /**
  * DaoImplementation get Details from user,

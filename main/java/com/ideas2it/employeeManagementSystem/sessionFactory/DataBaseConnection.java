@@ -1,4 +1,4 @@
-package com.ideas2it.sessionFactory;
+package com.ideas2it.employeeManagementSystem.sessionFactory;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.HibernateException;

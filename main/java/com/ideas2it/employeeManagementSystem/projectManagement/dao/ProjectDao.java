@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 
 /**

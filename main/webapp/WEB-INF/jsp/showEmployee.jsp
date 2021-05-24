@@ -17,7 +17,7 @@
 </head>
 <h1 style="text-align: center;background-color: white;">EmployeeManagement</h1>
 <body style="background-color:lightblue;text-align:center">
-    <form action="showEmployee" method = "post">
+    <form action="showEmployee">
         Employee Id: <input type = "number" name = "id" required><br><br>
         <input type = "submit"> 
     </form><br><br>

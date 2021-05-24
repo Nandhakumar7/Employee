@@ -10,12 +10,12 @@
         display:inline-block;
     }
     </style>
-    <title>Address</title>
+    <title>EDIT Address</title>
 </head>
 <h1 style="text-align: center;background-color: white;">EmployeeManagment</h1>
 <body style="background-color:lightblue;text-align:center"> 
     <form:form method="post" action="saveAddress?employeeId=${employeeId}&choosedAddress=${choosedAddress}"
-        modelAttribute="employee">     
+        modelAttribute="address">     
         <label>DoorNumber</label> <form:input path="doorNumber" required="required"/><br><br>
         <label>StreetName</label> <form:input path="streetName" required="required"/><br><br>
         <label>District</label> <form:input path="district" required="required"/><br><br>

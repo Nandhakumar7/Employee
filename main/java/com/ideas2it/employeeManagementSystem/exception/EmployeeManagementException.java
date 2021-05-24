@@ -1,4 +1,4 @@
-package com.ideas2it.exception;
+package com.ideas2it.employeeManagementSystem.exception;
 
 /**
  * EmployeeManagementException is used for create own 

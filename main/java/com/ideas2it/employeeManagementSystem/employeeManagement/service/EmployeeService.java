@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
 
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
 

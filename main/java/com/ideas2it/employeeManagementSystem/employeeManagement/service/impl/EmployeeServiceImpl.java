@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 import com.ideas2it.employeeManagementSystem.employeeManagement.dao.EmployeeDao;
 import com.ideas2it.employeeManagementSystem.employeeManagement.dao.impl.EmployeeDaoImpl;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
@@ -19,7 +19,7 @@ import com.ideas2it.employeeManagementSystem.projectManagement.model.Project;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.ProjectService;
 import com.ideas2it.employeeManagementSystem.projectManagement.service.impl.ProjectServiceImpl;
 import com.ideas2it.employeeManagementSystem.employeeManagement.service.EmployeeService;
-import com.ideas2it.logger.EmployeeManagementLogger;
+import com.ideas2it.employeeManagementSystem.logger.EmployeeManagementLogger;
 
 /**
  * ServiceImplementation get Details from user,
@@ -30,8 +30,14 @@ import com.ideas2it.logger.EmployeeManagementLogger;
  */
 public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeDao employeeDao;
+    private ProjectService projectService;
     public EmployeeServiceImpl(EmployeeDao employeeDao) {
     	this.employeeDao = employeeDao;
+    }
+    
+    public void setProjectService(ProjectService projectService) {
+    	System.out.println("heyy i am service injector");
+    	this.projectService = projectService;
     }
     
     /**
@@ -324,8 +330,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 = new EmployeeManagementLogger(EmployeeServiceImpl.class);
     	Employee employee;
     	try {
-    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
-    		ProjectService projectService = context.getBean("projectService", ProjectService.class);
+    		//ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		//ProjectService projectService = context.getBean("projectService", ProjectService.class);
             employee = employeeDao.getEmployeeDetails(employeeId);
             List<Project> employeeProjects = employee.getProjectList();
             List<Project> projects = projectService.getProjectsForEmployee(projectsId);
@@ -345,8 +351,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     		throws EmployeeManagementException {
     	List<List> employeeProjectAssignedDetails = new LinkedList<List>();
     	try { 
-    		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
-    		ProjectService projectService = context.getBean("projectService", ProjectService.class);
+    		//ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    		//ProjectService projectService = context.getBean("projectService", ProjectService.class);
             Employee employee = employeeDao.getEmployeeDetails(employeeId);
             List<Project> projects = employee.getProjectList();
             List<Integer> assignedProjectsId = new ArrayList<Integer>();

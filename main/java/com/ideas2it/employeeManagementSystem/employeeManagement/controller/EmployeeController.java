@@ -3,6 +3,7 @@ package com.ideas2it.employeeManagementSystem.employeeManagement.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Address;
 import com.ideas2it.employeeManagementSystem.employeeManagement.model.Employee;
 import com.ideas2it.employeeManagementSystem.employeeManagement.service.EmployeeService;
-import com.ideas2it.employeeManagementSystem.employeeManagement.service.impl.EmployeeServiceImpl;
-import com.ideas2it.exception.EmployeeManagementException;
+import com.ideas2it.employeeManagementSystem.exception.EmployeeManagementException;
 
 /**
  * EmployeeController for doing CRUD operation.
@@ -26,8 +26,8 @@ import com.ideas2it.exception.EmployeeManagementException;
  */
 @Controller    
 public class EmployeeController {  
-	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
-	EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);
+    ApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
+    EmployeeService employeeService = context.getBean("employeeService", EmployeeService.class);
     
 	/**
 	 * call Employee create Form.
@@ -36,7 +36,7 @@ public class EmployeeController {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/addEmployee")    
+    @RequestMapping(value="/addEmployee", method = RequestMethod.GET)        
     public String showform(Model model) { 
         model.addAttribute("employee", new Employee());  
         return "addEmployee";   
@@ -49,7 +49,7 @@ public class EmployeeController {
      * 
 	 * @return ModelAndView model and viewpage name.
      */
-    @RequestMapping("/editEmployeeForm")    
+    @RequestMapping(value="/editEmployeeForm", method = RequestMethod.GET)           
     public ModelAndView showEditEmployeeForm(@RequestParam int id) { 
         ModelAndView modelAndView = new ModelAndView(); 
     	try {
@@ -70,7 +70,7 @@ public class EmployeeController {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/addAddress")    
+    @RequestMapping(value="/addAddress" , method = RequestMethod.GET)    
     public ModelAndView addAddressForm(@RequestParam int id) {
         ModelAndView modelAndView = new ModelAndView(); 
         modelAndView.addObject("address", new Address()); 
@@ -87,7 +87,7 @@ public class EmployeeController {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/updateEmployee")    
+    @RequestMapping(value="/updateEmployee", method = RequestMethod.POST)           
     public ModelAndView updateEmployee
             (@ModelAttribute Employee updatedEmployee) {
         ModelAndView modelAndView = new ModelAndView();
@@ -110,7 +110,7 @@ public class EmployeeController {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/editAddress")    
+    @RequestMapping(value="/editAddress" , method = RequestMethod.GET)
     public ModelAndView editAddress(@RequestParam("choosedAddress")int addressCount, 
     		@RequestParam("id")int id, @RequestParam("choosedAddressId")int addressId ) {
     	ModelAndView modelAndView = new ModelAndView();
@@ -134,7 +134,7 @@ public class EmployeeController {
      * 
 	 * @return ModelAndView contains details to user view.
      */
-    @RequestMapping("/saveAddress")    
+    @RequestMapping(value="/saveAddress", method = RequestMethod.POST)           
     public ModelAndView saveNewAddress(@RequestParam("employeeId") int id,
     		@ModelAttribute Address address, @RequestParam("choosedAddress") 
             int count) {
@@ -160,14 +160,14 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-	@RequestMapping("/showALLEmployee")   
+	@RequestMapping(value="/showALLEmployee", method = RequestMethod.GET)           
     public ModelAndView showAllProject() { 
     	List<Employee> allEmployees = null;
     	ModelAndView modelAndView = new ModelAndView(); 
 		try {
 			allEmployees = employeeService.getAllEmployees(false);
 			modelAndView.addObject("allEmployees", allEmployees);
-			modelAndView.addObject("message", "DeleteEmployee");
+			modelAndView.addObject("message", "showEmployee");
 			modelAndView.setViewName("restoreEmployee");
 		} catch (EmployeeManagementException e) {
 			modelAndView.addObject("message", e.getMessage());
@@ -184,15 +184,20 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/DeleteAddress")    
+    @RequestMapping(value="/DeleteAddress", method = RequestMethod.GET)           
     public ModelAndView deleteEmployeeAddress(@RequestParam("employeeId") int employeeId,
     		@RequestParam("choosedAddress") int choosedAddress) {
     	ModelAndView modelAndView = new ModelAndView();
 		try {
-			employeeService.deleteEmployeeAddress(choosedAddress, employeeId);
-	    	Employee employee = employeeService.getEmployeeDetails(employeeId);
-	    	modelAndView.addObject("employee", employee);
-	    	modelAndView.setViewName("showEmployee");
+			if(employeeService.deleteEmployeeAddress(choosedAddress, employeeId)) {
+	    	    Employee employee = employeeService.getEmployeeDetails(employeeId);
+	    	    modelAndView.addObject("employee", employee);
+	    	    modelAndView.setViewName("showEmployee");
+			} else {
+				modelAndView.addObject("message","PRIMARY ADDRESS CAN'T ABLE TO DELETE"
+						+ "PLEASE ADD OTHER ADDRESS AS A PRIMARY BEFOR DELETE");
+				modelAndView.setViewName("messagePrint");
+			}
 		} catch (EmployeeManagementException e) {
 			modelAndView.addObject("message", e.getMessage());
 			modelAndView.setViewName("messagePrint");
@@ -208,7 +213,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/updateAsPrimaryAddress")    
+    @RequestMapping(value="/updateAsPrimaryAddress", method = RequestMethod.GET)           
     public ModelAndView updateAddressAsPrimary(@RequestParam("id") int employeeId,
     		@RequestParam("choosedAddress") int choosedAddress) {
     	ModelAndView modelAndView = new ModelAndView();
@@ -232,7 +237,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/showEmployee")    
+    @RequestMapping(value="/showEmployee", method = RequestMethod.GET)            
     public ModelAndView getProject(@RequestParam("id") int id) {
     	Employee employee;
     	ModelAndView modelAndView = new ModelAndView(); 
@@ -259,7 +264,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/DeleteEmployee" )    
+    @RequestMapping(value="/DeleteEmployee", method = RequestMethod.GET)           
     public ModelAndView DeleteProject(@RequestParam("id") int id) { 
     	ModelAndView modelAndView = new ModelAndView(); 
     	String message = null;
@@ -281,7 +286,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/restoreEmployee" )    
+    @RequestMapping(value="/restoreEmployee", method = RequestMethod.GET)           
     public ModelAndView restoreProject(@RequestParam("id") int id) { 
     	ModelAndView modelAndView = new ModelAndView(); 
     	String message = null;
@@ -302,7 +307,7 @@ public class EmployeeController {
 	 * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/showAllDeletedEmployees")    
+    @RequestMapping(value="/showAllDeletedEmployees", method = RequestMethod.GET)           
     public ModelAndView showAllDeletedProject() { 
     	List<Employee> allEmployees = null;
     	ModelAndView modelAndView = new ModelAndView(); 
@@ -323,7 +328,7 @@ public class EmployeeController {
 	 * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/EmployeeHomePage")    
+    @RequestMapping(value="/EmployeeHomePage", method = RequestMethod.GET)            
     public String callProjectHome() { 
         return "employeeHomePage";   
     }
@@ -333,7 +338,7 @@ public class EmployeeController {
      * 
 	 * @return String viewPage name.
      */
-    @RequestMapping("/showEmployeePage")    
+    @RequestMapping(value="/showEmployeePage", method = RequestMethod.GET)           
     public String callviewProjectPage() {
         return "showEmployee";   
     }
@@ -346,7 +351,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/assignProject")    
+    @RequestMapping(value="/assignProject", method = RequestMethod.POST)           
     public ModelAndView assignEmployee(@RequestParam("projectId")String[] checkboxValue,
     		@RequestParam("employeeId")String[] employeeId) { 
     	ModelAndView modelAndView = new ModelAndView();
@@ -377,7 +382,7 @@ public class EmployeeController {
      * 
      * @return ModelAndView  Contains details for userView and viewPage Details.
      */
-    @RequestMapping("/getEmployeeProjects")    
+    @RequestMapping(value="/getEmployeeProjects", method = RequestMethod.GET)           
     public ModelAndView getProjectEmployees(@RequestParam int id) {
     	ModelAndView modelAndView = new ModelAndView(); 
 		try {

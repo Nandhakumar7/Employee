@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>   
 <!DOCTYPE html>
 <html>
+<title>showProject</title>
 <head>
     <title>showProject</title>
     <style>
@@ -18,7 +19,7 @@
 </head>
 <h1 style="text-align: center;background-color: white;">ProjectManagement</h1>
 <body style="background-color:lightblue;text-align:center">
-    <form action="showProject" method = "post">
+    <form action="showProject">
         Project id: <input type = "number" name = "id" required><br><br>
         <input type = "submit"> 
     </form><br><br>

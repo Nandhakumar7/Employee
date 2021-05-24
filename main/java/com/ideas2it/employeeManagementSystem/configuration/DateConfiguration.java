@@ -1,4 +1,4 @@
-package com.ideas2it.configuration;
+package com.ideas2it.employeeManagementSystem.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

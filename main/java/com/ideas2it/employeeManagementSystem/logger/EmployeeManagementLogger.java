@@ -1,4 +1,4 @@
-package com.ideas2it.logger;
+package com.ideas2it.employeeManagementSystem.logger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
